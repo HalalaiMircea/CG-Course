@@ -1,8 +1,5 @@
 Homework for computer graphics laboratory
-# Dependencies
+## Dependencies
 freeglut library
-# Compiling
-## Linux
-Compile with -lglut -lGL -lGLU
-## Windows MinGW
-Just run in Clion with cmake
+## Compiling
+Build with cmake for each platform

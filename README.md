@@ -1,3 +1,8 @@
-CG-Course
-On linux compile with -lglut -lGL -lGLU
-On windows, with MinGW compiler, just run in clion or cmake
+Homework for computer graphics laboratory
+# Dependencies
+freeglut library
+# Compiling
+## Linux
+Compile with -lglut -lGL -lGLU
+## Windows MinGW
+Just run in Clion with cmake

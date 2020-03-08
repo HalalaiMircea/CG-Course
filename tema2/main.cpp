@@ -1,5 +1,6 @@
-#include <GL/freeglut.h>
 #include <iostream>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 
 using namespace std;
 
@@ -11,14 +12,6 @@ int vert_count = 0;
 int k = 0;
 bool intersectedLines[100];
 
-void init() {
-    glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0.0, WND_WIDTH, 0.0, WND_HEIGHT);
-
-    glLineWidth(3);
-    glPointSize(10);
-    glEnable(GL_POINT_SMOOTH);
-}
 
 void mouseFunction(int button, int state, int x, int y) {
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && vert_count <= 3) {
@@ -82,6 +75,7 @@ void render() {
     glEnd();
 
     glFlush();
+    glutSwapBuffers();
 }
 
 void mouseFunction2(int button, int state, int x, int y) {
@@ -124,13 +118,11 @@ void render2() {
     glClearColor(0, 1, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glDisable(GL_LINE_STIPPLE);
+
     glBegin(GL_LINES);
     for (int i = 0; i < k - 1; i++) {
-        if (intersectedLines[i]) {
-            glColor3f(0.0, 0.0, 1.0);
-            glVertex2f(X[i + 1], Y[i + 1]);
-            glVertex2f(X[i], Y[i]);
-        } else {
+        if (!intersectedLines[i]) {
             glColor3f(1.0, 1.0, 0.0);
             glVertex2f(X[i + 1], Y[i + 1]);
             glVertex2f(X[i], Y[i]);
@@ -138,15 +130,21 @@ void render2() {
     }
     glEnd();
 
-    glEnable(GL_POINT_SMOOTH);
-    glBegin(GL_POINTS);
-    {
-        glColor3f(1.0, 1.0, 0.0);
-        glVertex2i(X[k], Y[k]);
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x00FF);
+
+    glBegin(GL_LINES);
+    for (int i = 0; i < k - 1; i++) {
+        if (intersectedLines[i]) {
+            glColor3f(0.0, 0.0, 1.0);
+            glVertex2f(X[i + 1], Y[i + 1]);
+            glVertex2f(X[i], Y[i]);
+        }
     }
     glEnd();
 
     glFlush();
+    glutSwapBuffers();
 }
 
 void wndReshapeFunc(int width, int height) {
@@ -161,9 +159,37 @@ void wndReshapeFunc(int width, int height) {
     glutPostRedisplay();
 }
 
+void enableMultisample(bool msaa_enabled) {
+    if (msaa_enabled) {
+        glEnable(GL_MULTISAMPLE);
+        glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+
+        // detect current settings
+        GLint iMultiSample = 0;
+        GLint iNumSamples = 0;
+        glGetIntegerv(GL_SAMPLE_BUFFERS, &iMultiSample);
+        glGetIntegerv(GL_SAMPLES, &iNumSamples);
+        printf("MSAA on, GL_SAMPLE_BUFFERS = %d, GL_SAMPLES = %d\n", iMultiSample, iNumSamples);
+    } else {
+        glDisable(GL_MULTISAMPLE);
+        printf("MSAA off\n");
+    }
+}
+
+void init() {
+    glMatrixMode(GL_PROJECTION);
+    gluOrtho2D(0.0, WND_WIDTH, 0.0, WND_HEIGHT);
+    enableMultisample(true);
+
+    glLineWidth(3);
+    glPointSize(10);
+    glEnable(GL_POINT_SMOOTH);
+}
+
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutSetOption(GLUT_MULTISAMPLE, 8);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(WND_WIDTH, WND_HEIGHT);
     glutCreateWindow("Tema 2: Intersectii de segmente");

@@ -74,7 +74,6 @@ void render() {
     }
     glEnd();
 
-    glFlush();
     glutSwapBuffers();
 }
 
@@ -143,7 +142,6 @@ void render2() {
     }
     glEnd();
 
-    glFlush();
     glutSwapBuffers();
 }
 

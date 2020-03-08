@@ -51,6 +51,7 @@ void mouseFunction(int button, int state, int x, int y) {
         } else cout << "Lines don't intersect\n";
         vert_count++;
     }
+    glutPostRedisplay();
 }
 
 void render() {
@@ -111,6 +112,7 @@ void mouseFunction2(int button, int state, int x, int y) {
         }
         k++;
     }
+    glutPostRedisplay();
 }
 
 void render2() {
@@ -157,27 +159,9 @@ void wndReshapeFunc(int width, int height) {
     glutPostRedisplay();
 }
 
-void enableMultisample(bool msaa_enabled) {
-    if (msaa_enabled) {
-        glEnable(GL_MULTISAMPLE);
-        glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
-
-        // detect current settings
-        GLint iMultiSample = 0;
-        GLint iNumSamples = 0;
-        glGetIntegerv(GL_SAMPLE_BUFFERS, &iMultiSample);
-        glGetIntegerv(GL_SAMPLES, &iNumSamples);
-        printf("MSAA on, GL_SAMPLE_BUFFERS = %d, GL_SAMPLES = %d\n", iMultiSample, iNumSamples);
-    } else {
-        glDisable(GL_MULTISAMPLE);
-        printf("MSAA off\n");
-    }
-}
-
 void init() {
     glMatrixMode(GL_PROJECTION);
     gluOrtho2D(0.0, WND_WIDTH, 0.0, WND_HEIGHT);
-    enableMultisample(true);
 
     glLineWidth(3);
     glPointSize(10);

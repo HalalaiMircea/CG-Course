@@ -51,7 +51,6 @@ void mouseFunction(int button, int state, int x, int y) {
         } else cout << "Lines don't intersect\n";
         vert_count++;
     }
-    glutPostRedisplay();
 }
 
 void render() {
@@ -76,6 +75,7 @@ void render() {
     glEnd();
 
     glutSwapBuffers();
+    glutPostRedisplay();
 }
 
 void mouseFunction2(int button, int state, int x, int y) {
@@ -112,7 +112,6 @@ void mouseFunction2(int button, int state, int x, int y) {
         }
         k++;
     }
-    glutPostRedisplay();
 }
 
 void render2() {
@@ -145,6 +144,7 @@ void render2() {
     glEnd();
 
     glutSwapBuffers();
+    glutPostRedisplay();
 }
 
 void wndReshapeFunc(int width, int height) {
@@ -157,6 +157,11 @@ void wndReshapeFunc(int width, int height) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glutPostRedisplay();
+}
+
+void keyboardFunction(unsigned char key, int x, int y) {
+    if (key == 27)
+        glutExit();
 }
 
 void init() {
@@ -172,9 +177,9 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutSetOption(GLUT_MULTISAMPLE, 8);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
-    glutInitWindowPosition(0, 0);
+    /*glutInitWindowPosition(0, 0);
     glutInitWindowSize(WND_WIDTH, WND_HEIGHT);
-    glutCreateWindow("Tema 2: Intersectii de segmente");
+    glutCreateWindow("Tema 2: Intersectii de segmente");*/
 
     std::string option;
     cout << "Problem 1 or 2?\n";
@@ -182,6 +187,12 @@ int main(int argc, char **argv) {
     while (option != "1" && option != "2") {
         cout << "INVALID OPTION\n";
         cin >> option;
+    }
+
+    glutGameModeString((std::to_string(glutGet(GLUT_SCREEN_WIDTH)) +
+                        "x" + std::to_string(glutGet(GLUT_SCREEN_HEIGHT)) + ":32").c_str());
+    if (glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)) {
+        glutEnterGameMode();
     }
 
     init();
@@ -192,6 +203,7 @@ int main(int argc, char **argv) {
         glutMouseFunc(mouseFunction2);
         glutDisplayFunc(render2);
     }
+    glutKeyboardFunc(keyboardFunction);
     glutReshapeFunc(wndReshapeFunc);
     glutMainLoop();
 }

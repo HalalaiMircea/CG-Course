@@ -80,9 +80,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/Template/MyUtils.hpp">
-			<Option target="Template"/>
-		</Unit>
 		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/Template/main.cpp">
 			<Option target="Template"/>
 		</Unit>

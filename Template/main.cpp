@@ -26,7 +26,7 @@ void render() {
     glVertex2i(10, 10);
     glVertex2i(500, 500);*/
     for (int i = 0; i < vertices.size(); i++)
-        vertices[i].draw(colors[i]);
+        vertices.at(i).draw();
     glEnd();
 
 

@@ -3,7 +3,7 @@ project(Template)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(${PROJECT_NAME} main.cpp MyUtils.hpp)
+add_executable(${PROJECT_NAME} main.cpp)
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} -lfreeGLUT -lopenGL32 -lGLU32)
 else ()

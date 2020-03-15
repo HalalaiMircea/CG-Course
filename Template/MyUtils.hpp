@@ -3,6 +3,8 @@
 #include <GL/gl.h>
 
 const float PI = 3.14159265358979323846;
+const float degToRad = PI / 180;
+const float radToDeg = 180 / PI;
 
 class Color {
 public:
@@ -11,19 +13,11 @@ public:
     Color() : r(0), g(0), b(0) {}
 
     Color(float r, float g, float b) : r(r), g(g), b(b) {}
-
-    /*float *getArray() const {
-        float v[3];
-        v[0] = r;
-        v[1] = g;
-        v[2] = b;
-        return v;
-    }*/
 };
 
 class Vertex {
-public:
     float pos[2]{};
+public:
 
     Vertex(float x, float y) {
         pos[0] = x;
@@ -42,5 +36,9 @@ public:
     void draw(const Color &new_color) {
         glColor3f(new_color.r, new_color.g, new_color.b);
         glVertex2fv(pos);
+    }
+
+    const float *getPos() const {
+        return pos;
     }
 };

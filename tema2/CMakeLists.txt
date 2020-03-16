@@ -3,7 +3,7 @@ project(tema2)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp AbstractProblem.hpp Hw2Problem1.hpp Hw2Problem2.hpp)
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} -lfreeglut -lopenGL32 -lGLU32)
 else ()

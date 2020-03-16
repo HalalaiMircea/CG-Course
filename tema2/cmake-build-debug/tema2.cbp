@@ -80,6 +80,15 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/tema2/AbstractProblem.hpp">
+			<Option target="tema2"/>
+		</Unit>
+		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/tema2/Hw2Problem1.hpp">
+			<Option target="tema2"/>
+		</Unit>
+		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/tema2/Hw2Problem2.hpp">
+			<Option target="tema2"/>
+		</Unit>
 		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/tema2/main.cpp">
 			<Option target="tema2"/>
 		</Unit>

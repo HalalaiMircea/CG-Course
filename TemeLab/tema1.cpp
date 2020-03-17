@@ -1,7 +1,6 @@
 #include <GL/freeglut.h>
 #include <cmath>
 #include <vector>
-#include <iostream>
 
 
 struct Point {

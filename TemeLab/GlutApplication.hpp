@@ -2,7 +2,7 @@
 
 #include <string>
 #include <GL/freeglut.h>
-#include "IAppListener.hpp"
+#include "AppListener.hpp"
 
 #undef far
 #undef near
@@ -28,23 +28,22 @@ struct Configuration {
     }
 };
 
-/** Singleton GlutApplication class that gets a specific application's behaviour through listener.
- * First set the AppListener object with setListener static method.
- * Then set a config directly on the public static attribute config
- * Finally run the app with initialize
+/** GlutApplication class that gets a specific application's behaviour through a listener and a configuration object to
+ * setup the window accordingly
 **/
 class GlutApplication {
-    static IAppListener *listener;
+    static AppListener *listener;
 public:
     static Configuration config;
 
-    GlutApplication(IAppListener *appListener, const Configuration &configuration, int argc, char *argv[]) {
+    GlutApplication(AppListener *appListener, const Configuration &configuration, int argc, char *argv[]) {
         listener = appListener;
         config = configuration;
         initialize(argc, argv);
     }
 
     virtual ~GlutApplication() {
+        delete listener;
     }
 
     static void exit() {
@@ -56,10 +55,11 @@ private:
         glutInit(&argc, argv);
         glutSetOption(GLUT_MULTISAMPLE, config.samples);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_MULTISAMPLE);
-        if (config.x == -1 || config.y == -1) {
-            glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - config.width) / 2,
-                                   (glutGet(GLUT_SCREEN_HEIGHT) - config.height) / 2);
-        } else glutInitWindowPosition(config.x, config.y);
+        if (config.x < 0 || config.y < 0) {
+            config.x = (glutGet(GLUT_SCREEN_WIDTH) - config.width) / 2;
+            config.y = (glutGet(GLUT_SCREEN_HEIGHT) - config.height) / 2;
+        }
+        glutInitWindowPosition(config.x, config.y);
         glutInitWindowSize(config.width, config.height);
         glutCreateWindow(config.title.c_str());
 
@@ -76,17 +76,15 @@ private:
         glutMainLoop();
     }
 
-    static void update(int width, int height) {
-        config.width = width;
-        config.height = height;
-    }
-
     static void displayWrapper() {
         listener->displayFunc();
+        glutSwapBuffers();
+        glutPostRedisplay();
     }
 
     static void reshapeWrapper(int width, int height) {
-        update(width, height);
+        config.width = width;
+        config.height = height;
         listener->reshapeFunc(width, height);
     }
 
@@ -112,4 +110,4 @@ private:
 };
 
 Configuration GlutApplication::config = {};
-IAppListener *GlutApplication::listener = nullptr;
+AppListener *GlutApplication::listener = nullptr;

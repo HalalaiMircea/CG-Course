@@ -1,7 +1,7 @@
 #include <iostream>
 #include "GlutApplication.hpp"
 
-class Hw2Problem1 : public IAppListener {
+class Hw2Problem1 : public AppListener {
     float X[100]{}, Y[100]{};
     int vert_count = 0;
 public:
@@ -32,9 +32,6 @@ public:
             }
         }
         glEnd();
-
-        glutSwapBuffers();
-        glutPostRedisplay();
     }
 
     void reshapeFunc(int width, int height) override {
@@ -90,25 +87,16 @@ public:
         if (key == 27) //ESC
             GlutApplication::exit();
     }
-
-    void keyboardUpFunc(unsigned char key, int x, int y) override {
-
-    }
-
-    void specialKeyboardFunc(int key, int x, int y) override {
-
-    }
-
-    void specialKeyboardUpFunc(int key, int x, int y) override {
-
-    }
 };
 
-class Hw2Problem2 : public IAppListener {
+class Hw2Problem2 : public AppListener {
     float X[100]{}, Y[100]{};
     int k = 0;
     bool intersectedLines[100] = {};
 public:
+    ~Hw2Problem2() override {
+        std::cout << "Hw2Problem2 Destroyed\n";
+    }
 
     void create() override {
         glLineWidth(3);
@@ -144,9 +132,6 @@ public:
             }
         }
         glEnd();
-
-        glutSwapBuffers();
-        glutPostRedisplay();
     }
 
     void reshapeFunc(int width, int height) override {
@@ -197,18 +182,6 @@ public:
     void keyboardFunc(unsigned char key, int x, int y) override {
         if (key == 27) //ESC
             GlutApplication::exit();
-    }
-
-    void keyboardUpFunc(unsigned char key, int x, int y) override {
-
-    }
-
-    void specialKeyboardFunc(int key, int x, int y) override {
-
-    }
-
-    void specialKeyboardUpFunc(int key, int x, int y) override {
-
     }
 };
 

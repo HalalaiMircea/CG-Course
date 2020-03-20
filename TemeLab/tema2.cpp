@@ -193,6 +193,6 @@ int main(int argc, char **argv) {
     config.samples = 8;
     config.setOrtho(0, config.width, 0, config.height, -1, 1);
 
-    new GlutApplication(new Hw2Problem2(), config, argc, argv);
+    new GlutApplication(new Hw2Problem1(), config, argc, argv);
     return 0;
 }

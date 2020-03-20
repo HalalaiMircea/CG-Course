@@ -8,9 +8,9 @@ public:
     /// Required methods that need to be overridden
     virtual void create() = 0;
 
-    virtual void reshapeFunc(int width, int height) = 0;
-
     virtual void displayFunc() = 0;
+
+    virtual void reshapeFunc(int width, int height) = 0;
 
     /// Optional methods
     virtual void mouseFunc(int button, int state, int x, int y) {}

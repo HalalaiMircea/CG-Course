@@ -13,61 +13,34 @@ struct Color {
     Color() : r(0), g(0), b(0) {}
 
     Color(float r, float g, float b) : r(r), g(g), b(b) {}
+
+    static const Color WHITE, BLACK, RED, GREEN, BLUE;
 };
 
-/*struct Vertex {
-    float x, y;
-
-    Vertex() {
-        x = 0;
-        y = 0;
-    }
-
-    Vertex(float x, float y) {
-        this->x = x;
-        this->y = y;
-    }
-
-    void draw() const {
-        glVertex2f(x, y);
-    }
-
-    void draw(float red, float green, float blue) const {
-        glColor3f(red, green, blue);
-        glVertex2f(x, y);
-    }
-
-    void draw(const Color &new_color) const {
-        glColor3f(new_color.r, new_color.g, new_color.b);
-        glVertex2f(x, y);
-    }
-
-    friend std::ostream &operator<<(std::ostream &os, const Vertex &vertex) {
-        os << "x: " << vertex.x << " y: " << vertex.y;
-        return os;
-    }
-};*/
-
+const Color Color::WHITE{1, 1, 1};
+const Color Color::BLACK{0, 0, 0};
+const Color Color::RED{1, 0, 0};
+const Color Color::GREEN{0, 1, 0};
+const Color Color::BLUE{0, 0, 1};
 
 template<class T>
 class Vector {
 public:
     virtual float len() = 0;
 
-    virtual T *set(const T &v) = 0;
+    virtual T &set(const T &v) = 0;
 
-    virtual T *sub(const T &v) = 0;
+    virtual T &operator+=(const T &v) = 0;
 
-    virtual T *add(const T &v) = 0;
+    virtual T &operator-=(const T &v) = 0;
+
+    virtual T &operator*=(float scalar) = 0;
+
+    virtual T &operator*=(const T &v) = 0;
 
     virtual float dot(const T &v) const = 0;
 
-    virtual T *scl(float scalar) = 0;
-
-    virtual T *scl(const T &v) = 0;
-
-    virtual float dst(const T &v) const = 0;
-
+    virtual float dist(const T &v) const = 0;
 };
 
 class Vector2 : public Vector<Vector2> {
@@ -85,54 +58,54 @@ public:
         return std::sqrt(x * x + y * y);
     }
 
-    Vector2 *set(const Vector2 &v) override {
+    Vector2 &set(const Vector2 &v) override {
         x = v.x;
         y = v.y;
-        return this;
+        return *this;
     }
 
-    Vector2 *set(float x, float y) {
+    Vector2 &set(float x, float y) {
         this->x = x;
         this->y = y;
-        return this;
+        return *this;
     }
 
-    Vector2 *sub(const Vector2 &v) override {
-        x -= v.x;
-        y -= v.y;
-        return this;
-    }
-
-    Vector2 *add(const Vector2 &v) override {
+    Vector2 &operator+=(const Vector2 &v) override {
         x += v.x;
         y += v.y;
-        return this;
+        return *this;
+    }
+
+    Vector2 &operator-=(const Vector2 &v) override {
+        x -= v.x;
+        y -= v.y;
+        return *this;
+    }
+
+    Vector2 &operator*=(float scalar) override {
+        x *= scalar;
+        y *= scalar;
+        return *this;
+    }
+
+    Vector2 &operator*=(const Vector2 &v) override {
+        x *= v.x;
+        y *= v.y;
+        return *this;
     }
 
     float dot(const Vector2 &v) const override {
         return x * v.x + y * v.y;
     }
 
-    Vector2 *scl(float scalar) override {
-        x *= scalar;
-        y *= scalar;
-        return this;
-    }
-
-    Vector2 *scl(const Vector2 &v) override {
-        x *= v.x;
-        y *= v.y;
-        return this;
-    }
-
-    float dst(const Vector2 &v) const override {
+    float dist(const Vector2 &v) const override {
         float x_d = v.x - x;
         float y_d = v.y - y;
         return std::sqrt(x_d * x_d + y_d * y_d);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Vector2 &v) {
-        os << "(" << v.x << " " << v.y << ")";
+        os << "(" << v.x << "," << v.y << ")";
         return os;
     }
 };
@@ -151,71 +124,76 @@ public:
         return std::sqrt(x * x + y * y + z * z);
     }
 
-    Vector3 *set(const Vector3 &v) override {
+    Vector3 &set(const Vector3 &v) override {
         x = v.x;
         y = v.y;
         z = v.z;
-        return this;
+        return *this;
     }
 
-    Vector3 *set(float x, float y, float z) {
+    Vector3 &set(float x, float y, float z) {
         this->x = x;
         this->y = y;
         this->z = z;
-        return this;
+        return *this;
     }
 
-    Vector3 *sub(const Vector3 &v) override {
-        x -= v.x;
-        y -= v.y;
-        z -= v.z;
-        return this;
-    }
-
-    Vector3 *add(const Vector3 &v) override {
+    Vector3 &operator+=(const Vector3 &v) override {
         x += v.x;
         y += v.y;
         z += v.z;
-        return this;
+        return *this;
+    }
+
+    Vector3 &operator-=(const Vector3 &v) override {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return *this;
+    }
+
+    Vector3 &operator*=(float scalar) override {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
+
+    Vector3 &operator*=(const Vector3 &v) override {
+        x *= v.x;
+        y *= v.y;
+        z *= v.z;
+        return *this;
     }
 
     float dot(const Vector3 &v) const override {
         return x * v.x + y * v.y + z * v.z;
     }
 
-    Vector3 *scl(float scalar) override {
-        x *= scalar;
-        y *= scalar;
-        z *= scalar;
-        return this;
-    }
-
-    Vector3 *scl(const Vector3 &v) override {
-        x *= v.x;
-        y *= v.y;
-        z *= v.z;
-        return this;
-    }
-
-    float dst(const Vector3 &v) const override {
+    float dist(const Vector3 &v) const override {
         float x_d = v.x - x,
                 y_d = v.y - y,
                 z_d = v.z - z;
         return std::sqrt(x_d * x_d + y_d * y_d + z_d * z_d);
     }
 
-    Vector3 *cross(const Vector3 &vector) {
-        return this->set(
-                Vector3(y * vector.z - z * vector.y, z * vector.x - x * vector.z, x * vector.y - y * vector.x));
+    Vector3 &cross(const Vector3 &vector) {
+        set(y * vector.z - z * vector.y, z * vector.x - x * vector.z, x * vector.y - y * vector.x);
+        return *this;
     }
 
-    Vector3 *cross(float x, float y, float z) {
-        return this->set(this->y * z - this->z * y, this->z * x - this->x * z, this->x * y - this->y * x);
+    Vector3 &cross(float x, float y, float z) {
+        set(this->y * z - this->z * y, this->z * x - this->x * z, this->x * y - this->y * x);
+        return *this;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Vector3 &v) {
-        os << "(" << v.x << " " << v.y << " " << v.z << ")";
+        os << "(" << v.x << "," << v.y << "," << v.z << ")";
         return os;
+    }
+
+    static Vector3 cross(const Vector3 &v0, const Vector3 &v1) {
+        return {v0.y * v1.z - v0.z * v1.y, v0.z * v1.x - v0.x * v1.z, v0.x * v1.y - v0.y * v1.x};
     }
 };
 

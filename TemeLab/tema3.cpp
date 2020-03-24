@@ -160,8 +160,10 @@ public:
                 std::cout << vertices.back() << "\n";
             }
             if (vertices.size() == 3) {
-                vertices.emplace_back(vertices.at(2).x + vertices.at(1).x - vertices.at(0).x,
-                                      vertices.at(2).y + vertices.at(1).y - vertices.at(0).y);
+                Vector2 newVec(vertices[2]);
+                newVec += vertices[1];
+                newVec -= vertices[0];
+                vertices.emplace_back(newVec);
                 std::cout << vertices.back() << "\n";
             }
         }
@@ -173,7 +175,7 @@ public:
 
         if (vertices.size() == 4) {
             glBegin(GL_QUADS);
-            glColor3f(1, 0, 0);
+            glColor(Color::RED);
             glVertex(vertices.at(0));
             glVertex(vertices.at(1));
             glVertex(vertices.at(3));
@@ -184,7 +186,7 @@ public:
         glBegin(GL_POINTS);
         for (int i = 0; i < vertices.size(); ++i)
             if (i == 3) {
-                glColor3f(0, 1, 0);
+                glColor(Color::GREEN);
                 glVertex(vertices.at(3));
             } else {
                 glColor3f(0.5, 0.5, 1);
@@ -204,13 +206,17 @@ public:
 };
 
 int main(int argc, char **argv) {
-    Configuration config;
+    /*Configuration config;
     config.width = 800;
     config.height = 600;
     config.title = "Tema 3: Arie triunghi";
     config.samples = 8;
     config.setOrtho(0, config.width, 0, config.height, -1, 1);
 
-    new GlutApplication(new Hw3Pb2b(), config, argc, argv);
+    new GlutApplication(new Hw3Pb2b(), config, argc, argv);*/
+    Vector3 v1(1, 0, 0), v2(0, 1, 0);
+    std::cout << Vector3::cross(v1, v2) << "\n";
+    std::cout << v1 << "\n";
+    std::cout << v2 << "\n";
     return 0;
 }

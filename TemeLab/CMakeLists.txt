@@ -11,9 +11,11 @@ else ()
 endif ()
 
 add_executable(tema1 tema1.cpp)
-add_executable(tema2 tema2.cpp AppListener.hpp GlutApplication.hpp)
-add_executable(tema3 tema3.cpp AppListener.hpp GlutApplication.hpp)
+add_executable(tema2 tema2.cpp AppListener.hpp GlutApp.hpp)
+add_executable(tema3 tema3.cpp AppListener.hpp GlutApp.hpp)
+add_executable(tema4 tema4.cpp AppListener.hpp GlutApp.hpp)
 
 target_link_libraries(tema1 ${GL_LIBS})
 target_link_libraries(tema2 ${GL_LIBS})
 target_link_libraries(tema3 ${GL_LIBS})
+target_link_libraries(tema4 ${GL_LIBS})

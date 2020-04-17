@@ -28,21 +28,21 @@ struct Configuration {
     }
 };
 
-/** GlutApplication class that gets a specific application's behaviour through a listener and a configuration object to
+/** GlutApp class that gets a specific application's behaviour through a listener and a configuration object to
  * setup the window accordingly
 **/
-class GlutApplication {
+class GlutApp {
     static AppListener *listener;
 public:
     static Configuration config;
 
-    GlutApplication(AppListener *appListener, const Configuration &configuration, int argc, char *argv[]) {
+    GlutApp(AppListener *appListener, const Configuration &configuration, int argc, char *argv[]) {
         listener = appListener;
         config = configuration;
         initialize(argc, argv);
     }
 
-    virtual ~GlutApplication() {
+    virtual ~GlutApp() {
         delete listener;
     }
 
@@ -63,7 +63,7 @@ private:
         glutInitWindowSize(config.width, config.height);
         glutCreateWindow(config.title.c_str());
 
-        listener->reshapeFunc(config.width, config.height);
+        reshapeWrapper(config.width, config.height);
         listener->create();
 
         glutMouseFunc(mouseWrapper);
@@ -77,7 +77,8 @@ private:
     }
 
     static void displayWrapper() {
-        listener->displayFunc();
+        listener->render();
+        glFlush();
         glutSwapBuffers();
         glutPostRedisplay();
     }
@@ -86,6 +87,13 @@ private:
         config.width = width;
         config.height = height;
         listener->reshapeFunc(width, height);
+        glViewport(0, 0, config.width, config.height);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(config.orthoLeft, config.orthoRight, config.orthoBottom, config.orthoTop, config.orthoNear,
+                config.orthoFar);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
     }
 
     static void mouseWrapper(int button, int state, int x, int y) {
@@ -109,5 +117,5 @@ private:
     }
 };
 
-Configuration GlutApplication::config = {};
-AppListener *GlutApplication::listener = nullptr;
+Configuration GlutApp::config = {};
+AppListener *GlutApp::listener = nullptr;

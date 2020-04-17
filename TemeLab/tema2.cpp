@@ -1,5 +1,5 @@
 #include <iostream>
-#include "GlutApplication.hpp"
+#include "GlutApp.hpp"
 
 class Hw2Problem1 : public AppListener {
     float X[100]{}, Y[100]{};
@@ -12,7 +12,7 @@ public:
         glEnable(GL_POINT_SMOOTH);
     }
 
-    void displayFunc() override {
+    void render() override {
         glClearColor(0, 1, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -35,18 +35,13 @@ public:
     }
 
     void reshapeFunc(int width, int height) override {
-        glViewport(0, 0, GlutApplication::config.width, GlutApplication::config.height);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, GlutApplication::config.width, 0, GlutApplication::config.height, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+        GlutApp::config.setOrtho(0, GlutApp::config.width, 0, GlutApp::config.height, -1, 1);
     }
 
     void mouseFunc(int button, int state, int x, int y) override {
         if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN && vert_count <= 3) {
             X[vert_count] = (float) x;
-            Y[vert_count] = (float) (GlutApplication::config.height - y);
+            Y[vert_count] = (float) (GlutApp::config.height - y);
             vert_count++;
         }
         if (vert_count == 4) {
@@ -85,7 +80,7 @@ public:
 
     void keyboardFunc(unsigned char key, int x, int y) override {
         if (key == 27) //ESC
-            GlutApplication::exit();
+            GlutApp::exit();
     }
 };
 
@@ -104,7 +99,7 @@ public:
         glEnable(GL_POINT_SMOOTH);
     }
 
-    void displayFunc() override {
+    void render() override {
         glClearColor(0, 1, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -135,18 +130,13 @@ public:
     }
 
     void reshapeFunc(int width, int height) override {
-        glViewport(0, 0, GlutApplication::config.width, GlutApplication::config.height);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, GlutApplication::config.width, 0, GlutApplication::config.height, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+        GlutApp::config.setOrtho(0, GlutApp::config.width, 0, GlutApp::config.height, -1, 1);
     }
 
     void mouseFunc(int button, int state, int x, int y) override {
         if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
             X[k] = (float) x;
-            Y[k] = (float) (GlutApplication::config.height - y);
+            Y[k] = (float) (GlutApp::config.height - y);
             for (int i = 0; i < k - 2; i++) {
                 float fc = ((X[k - 1] - X[i]) / (X[i + 1] - X[i])) * (Y[i + 1] - Y[i]) - (Y[k - 1] - Y[i]);
                 float fd = ((X[k] - X[i]) / (X[i + 1] - X[i])) * (Y[i + 1] - Y[i]) - (Y[k] - Y[i]);
@@ -181,7 +171,7 @@ public:
 
     void keyboardFunc(unsigned char key, int x, int y) override {
         if (key == 27) //ESC
-            GlutApplication::exit();
+            GlutApp::exit();
     }
 };
 
@@ -193,6 +183,6 @@ int main(int argc, char **argv) {
     config.samples = 8;
     config.setOrtho(0, config.width, 0, config.height, -1, 1);
 
-    new GlutApplication(new Hw2Problem1(), config, argc, argv);
+    new GlutApp(new Hw2Problem2(), config, argc, argv);
     return 0;
 }

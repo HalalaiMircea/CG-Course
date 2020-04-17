@@ -3,9 +3,12 @@ project(Template)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(${PROJECT_NAME} main.cpp)
+# Link flags for each platform (Windows and Unix)
 if (WIN32)
-    target_link_libraries(${PROJECT_NAME} -lfreeGLUT -lopenGL32 -lGLU32)
+    set(GL_LIBS -lfreeglut -lopenGL32 -lGLU32)
 else ()
-    target_link_libraries(${PROJECT_NAME} -lglut -lGL -lGLU)
+    set(GL_LIBS -lglut -lGL -lGLU)
 endif ()
+
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} ${GL_LIBS})

@@ -8,7 +8,7 @@ public:
     /// Required methods that need to be overridden
     virtual void create() = 0;
 
-    virtual void render() = 0;
+    virtual void render(float delta) = 0;
 
     /// Inheriting class must update ortho values in config, boilerplate is handled in the wrapper function
     virtual void reshapeFunc(int width, int height) {}

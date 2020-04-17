@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "MyUtils.hpp"
-#include "GlutApplication.hpp"
+#include "GlutApp.hpp"
 
 //1. (1p) Folositi liste de display (cf. cod sursa 03_L_1_hexagon.cpp) pentru a aproxima cercuri folosind poligoane cu multe
 // laturi. Reprezentati cercuri de dimensiuni diferite. Folositi si alte metode de reprezentare, diferite de GL_FILL.
@@ -59,7 +59,7 @@ public:
         glEndList();
     }
 
-    void displayFunc() override {
+    void render() override {
         glClearColor(1.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -67,12 +67,7 @@ public:
     }
 
     void reshapeFunc(int width, int height) override {
-        glViewport(0, 0, GlutApplication::config.width, GlutApplication::config.height);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, GlutApplication::config.width, 0, GlutApplication::config.height, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+        GlutApp::config.setOrtho(0, GlutApp::config.width, 0, GlutApp::config.height, -1, 1);
     }
 };
 
@@ -89,7 +84,7 @@ public:
 
     void mouseFunc(int button, int state, int x, int y) override {
         auto xf = (float) x;
-        auto yf = (float) (GlutApplication::config.height - y);
+        auto yf = (float) (GlutApp::config.height - y);
 
         if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
             if (vertices.size() < 3) {
@@ -110,7 +105,7 @@ public:
         }
     }
 
-    void displayFunc() override {
+    void render() override {
         glClearColor(0.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -128,12 +123,7 @@ public:
     }
 
     void reshapeFunc(int width, int height) override {
-        glViewport(0, 0, GlutApplication::config.width, GlutApplication::config.height);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, GlutApplication::config.width, 0, GlutApplication::config.height, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+        GlutApp::config.setOrtho(0, GlutApp::config.width, 0, GlutApp::config.height, -1, 1);
     }
 
 private:
@@ -152,7 +142,7 @@ public:
 
     void mouseFunc(int button, int state, int x, int y) override {
         auto xf = (float) x;
-        auto yf = (float) (GlutApplication::config.height - y);
+        auto yf = (float) (GlutApp::config.height - y);
 
         if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
             if (vertices.size() < 3) {
@@ -169,7 +159,7 @@ public:
         }
     }
 
-    void displayFunc() override {
+    void render() override {
         glClearColor(0.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -196,27 +186,18 @@ public:
     }
 
     void reshapeFunc(int width, int height) override {
-        glViewport(0, 0, GlutApplication::config.width, GlutApplication::config.height);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, GlutApplication::config.width, 0, GlutApplication::config.height, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+        GlutApp::config.setOrtho(0, GlutApp::config.width, 0, GlutApp::config.height, -1, 1);
     }
 };
 
 int main(int argc, char **argv) {
-    /*Configuration config;
+    Configuration config;
     config.width = 800;
     config.height = 600;
     config.title = "Tema 3: Arie triunghi";
     config.samples = 8;
     config.setOrtho(0, config.width, 0, config.height, -1, 1);
 
-    new GlutApplication(new Hw3Pb2b(), config, argc, argv);*/
-    Vector3 v1(1, 0, 0), v2(0, 1, 0);
-    std::cout << Vector3::cross(v1, v2) << "\n";
-    std::cout << v1 << "\n";
-    std::cout << v2 << "\n";
+    new GlutApp(new Hw3Pb2b(), config, argc, argv);
     return 0;
 }

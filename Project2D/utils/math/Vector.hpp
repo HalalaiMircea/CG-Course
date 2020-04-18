@@ -61,6 +61,10 @@ public:
         return *this;
     }
 
+    friend Vector2 operator-(const Vector2 &v) {
+        return Vector2(-v.x, -v.y);
+    }
+
     Vector2 &operator+=(const Vector2 &v) override {
         x += v.x;
         y += v.y;
@@ -148,6 +152,10 @@ public:
         this->y = y;
         this->z = z;
         return *this;
+    }
+
+    friend Vector3 operator-(const Vector3 &v) {
+        return Vector3(-v.x, -v.y, -v.z);
     }
 
     Vector3 &operator+=(const Vector3 &v) override {

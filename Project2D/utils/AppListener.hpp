@@ -11,19 +11,29 @@ public:
      */
     virtual void create() = 0;
 
+    /**
+     * Render loop where user does logic and drawing
+     * @param delta - time in seconds since last frame
+     */
     virtual void render(float delta) = 0;
 
     /// Inheriting class must update ortho values in config, boilerplate is handled in the wrapper function
-    virtual void reshapeFunc(int width, int height) {}
+    virtual void resize(int width, int height) {}
 
-    /// Optional methods
+    /**
+     * Method which gets called when mouse button clicks are registered
+     * @param button - Button identifier, found in glut.h header
+     * @param state - Button state (UP or DOWN)
+     * @param x - X position of mouse cursor
+     * @param y - Y position of mouse cursor
+     */
     virtual void mouseFunc(int button, int state, int x, int y) {}
 
-    virtual void keyboardFunc(unsigned char key, int x, int y) {}
+    virtual void keyboardDown(unsigned char key, int x, int y) {}
 
-    virtual void keyboardUpFunc(unsigned char key, int x, int y) {}
+    virtual void keyboardUp(unsigned char key, int x, int y) {}
 
-    virtual void specialKeyboardFunc(int key, int x, int y) {}
+    virtual void specialKeyboardDown(int key, int x, int y) {}
 
-    virtual void specialKeyboardUpFunc(int key, int x, int y) {}
+    virtual void specialKeyboardUp(int key, int x, int y) {}
 };

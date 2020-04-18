@@ -71,20 +71,22 @@ private:
         glutInitWindowSize(config.width, config.height);
         glutCreateWindow(config.title.c_str());
 
-        reshapeWrapper(config.width, config.height);
+        setOrthoSpace();
         listener->create();
+        glutIgnoreKeyRepeat(1);
 
         glutMouseFunc(mouseWrapper);
         glutKeyboardFunc(keyboardWrapper);
         glutKeyboardUpFunc(keyboardUpWrapper);
         glutSpecialFunc(specialKeyboardWrapper);
         glutSpecialUpFunc(specialKeyboardUpWrapper);
-        glutDisplayFunc(displayWrapper);
+        glutDisplayFunc(fakeDisplayFunc);
+        glutIdleFunc(renderWrapper);
         glutReshapeFunc(reshapeWrapper);
         glutMainLoop();
     }
 
-    static void displayWrapper() {
+    static void renderWrapper() {
         using namespace std::chrono;
         tp2 = system_clock::now();
         duration<float> deltaTime = tp2 - tp1;
@@ -92,14 +94,24 @@ private:
         listener->render(deltaTime.count());
         glFlush();
         glutSwapBuffers();
-        glutPostRedisplay();
+//        glutPostRedisplay();
+    }
+
+    static void fakeDisplayFunc() {
+        // Do nothing so we only use idle func for rendering
     }
 
     static void reshapeWrapper(int width, int height) {
         config.width = width;
         config.height = height;
-        listener->reshapeFunc(width, height);
+
+        listener->resize(width, height);   // User defined method called using polymorphism
+
         glViewport(0, 0, config.width, config.height);
+        setOrthoSpace();
+    }
+
+    static void setOrthoSpace() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(config.orthoLeft, config.orthoRight, config.orthoBottom, config.orthoTop, config.orthoNear,
@@ -113,19 +125,19 @@ private:
     }
 
     static void keyboardWrapper(unsigned char key, int x, int y) {
-        listener->keyboardFunc(key, x, y);
+        listener->keyboardDown(key, x, y);
     }
 
     static void keyboardUpWrapper(unsigned char key, int x, int y) {
-        listener->keyboardUpFunc(key, x, y);
+        listener->keyboardUp(key, x, y);
     }
 
     static void specialKeyboardWrapper(int key, int x, int y) {
-        listener->specialKeyboardFunc(key, x, y);
+        listener->specialKeyboardDown(key, x, y);
     }
 
     static void specialKeyboardUpWrapper(int key, int x, int y) {
-        listener->specialKeyboardUpFunc(key, x, y);
+        listener->specialKeyboardUp(key, x, y);
     }
 };
 

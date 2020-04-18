@@ -7,6 +7,10 @@
 
 
 class Car {
+public:
+    static constexpr float wheelRadius = 30.0f;
+
+private:
     static Vector2 bodyVertices[8];
     static Vector2 windowVertices[4];
     static Circle circle;
@@ -86,13 +90,26 @@ public:
         windowVertices[2].set(windowVertices[1]).y += (bodyVertices[7].y - bodyVertices[4].y) - offset / 2;
         windowVertices[3].set(bodyVertices[7]).y -= offset / 2;
 
-        circle = {{100, 0}, 30};
+        circle = {{100, 0}, wheelRadius};
         tireColor = {(uint8_t) 40, 40, 40};
         wheelPlateColor = {0.7f, 0.7f, 0.7f};
     }
 
+    static float getModelWidth() {
+        return bodyVertices[0].dist(bodyVertices[1]);
+    }
+
+    static float getModelHeight() {
+        return bodyVertices[7].y - bodyVertices[0].y + wheelRadius;
+    }
+
+    static Vector2 getModelSize() {
+        return Vector2(getModelWidth(), getModelHeight());
+    }
+
 private:
     static void drawWheelTranslated(float amountX, float amountY) {
+        glPushMatrix();
         // Draw tire
         glTranslatef(amountX, amountY, 0);
         glColor(tireColor);
@@ -107,6 +124,7 @@ private:
             glColor(wheelPlateColor);
             circle.draw();
         }
+        glPopMatrix();
         glPopMatrix();
     }
 };

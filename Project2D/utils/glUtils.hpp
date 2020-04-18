@@ -33,3 +33,7 @@ void glTranslate(const Vector2 &amount) {
 void glTranslate(const Vector3 &amount) {
     glTranslatef(amount.x, amount.y, amount.z);
 }
+
+void glRect(const Vector2 &leftBottom, const Vector2 &rightTop) {
+    glRectf(leftBottom.x, leftBottom.y, rightTop.x, rightTop.y);
+}

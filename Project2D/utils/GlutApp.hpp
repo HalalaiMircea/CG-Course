@@ -8,6 +8,8 @@
 #undef far
 #undef near
 
+typedef std::chrono::system_clock SystemClock;
+
 struct Configuration {
     /** Title of the application **/
     std::string title;
@@ -37,8 +39,8 @@ public:
     static Configuration config;
 private:
     static AppListener *listener;
-    static std::chrono::system_clock::time_point tp1;
-    static std::chrono::system_clock::time_point tp2;
+    static SystemClock::time_point tp1;
+    static SystemClock::time_point tp2;
 public:
 
     GlutApp(AppListener *appListener, const Configuration &configuration, int argc, char *argv[]) {
@@ -49,6 +51,7 @@ public:
 
     virtual ~GlutApp() {
         delete listener;
+        std::cout << "Glut application terminated\n";
     }
 
     static void exit() {
@@ -70,9 +73,6 @@ private:
 
         reshapeWrapper(config.width, config.height);
         listener->create();
-
-        tp1 = std::chrono::system_clock::now();
-        tp2 = std::chrono::system_clock::now();
 
         glutMouseFunc(mouseWrapper);
         glutKeyboardFunc(keyboardWrapper);
@@ -131,5 +131,5 @@ private:
 
 Configuration GlutApp::config{};
 AppListener *GlutApp::listener = nullptr;
-std::chrono::system_clock::time_point GlutApp::tp1{};
-std::chrono::system_clock::time_point GlutApp::tp2{};
+SystemClock::time_point GlutApp::tp1 = SystemClock::now();
+SystemClock::time_point GlutApp::tp2 = SystemClock::now();

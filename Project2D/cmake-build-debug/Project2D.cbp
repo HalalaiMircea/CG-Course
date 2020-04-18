@@ -83,6 +83,9 @@
 		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/Project2D/Car.hpp">
 			<Option target="Project2D"/>
 		</Unit>
+		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/Project2D/DemarcationLine.hpp">
+			<Option target="Project2D"/>
+		</Unit>
 		<Unit filename="D:/Mirceaboss/Documents/GitRepos/CG-Course/Project2D/main.cpp">
 			<Option target="Project2D"/>
 		</Unit>

@@ -5,7 +5,10 @@ class AppListener {
 public:
     virtual ~AppListener() = default;
 
-    /// Required methods that need to be overridden
+    /**
+     * Method used by client to instantiate resources. DON'T instantiate at declaration as GlutApp
+     * won't be fully initialized at that time.
+     */
     virtual void create() = 0;
 
     virtual void render(float delta) = 0;

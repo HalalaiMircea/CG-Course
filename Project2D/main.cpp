@@ -12,10 +12,10 @@ public:
     void create() override {
         initializeTextsPositions();
         initializeDemarcationLine();
-        createStaticSceneDisplayList();
+        createStaticSceneDisplayLists();
 
         Car::generateResources();
-        staticCar = Car(roadLeftBottom.x + (roadSize.x - Car::getModelWidth()) / 2,
+        staticCar = Car(roadSize.x * 3 / 4 - Car::getModelWidth() / 2,
                         roadRightTop.y - (roadSize.y - Car::getModelHeight()) / 2, Color::BLUE);
         overcomingCar = Car(roadSize.x + 100, roadLeftBottom.y + roadSize.y / 4, Color::RED);
     }
@@ -26,28 +26,28 @@ public:
 
         // Update logic
         demarcation.act(delta);
-        staticCar.act(delta);
         overcomingCar.act(delta);
+        if (animState == BOTTOM_WEST && overcomingCar.getRightPos().x <= staticCar.getPosition().x) {
+            overcomingCar.setSpeed({-100, 50});
+            animState = NORTH_WEST;
+        } else if (animState == NORTH_WEST && overcomingCar.getPosition().y >= staticCar.getPosition().y) {
+            overcomingCar.setSpeed({-100, 0});
+            animState = TOP_WEST;
+        }
 
         // Draw objects
         glCallList(staticScene);
         demarcation.draw();
         staticCar.draw();
         overcomingCar.draw();
-        if (isMessageDisplayed) {
-            for (int i = 0; i < 2; i++) {
-                glutBitmapString(font, (const unsigned char *) texts[i].c_str());
-                glColor(Color::BLACK);
-                glRasterPos(textsPosition[i]);
-            }
-        }
+        if (animState == START)
+            glCallList(staticScene + 1);
     }
 
     void keyboardDown(unsigned char key, int x, int y) override {
-        if (key == ' ' && isMessageDisplayed) {
-            cout << "Animation Started!\n";
+        if (animState == START) {
+            animState = BOTTOM_WEST;
             overcomingCar.setSpeed({-100, 0});
-            isMessageDisplayed = false;
         } else if (key == 27)
             GlutApp::exit();
     }
@@ -70,18 +70,11 @@ private:
         }
     }
 
-    void createStaticSceneDisplayList() {
-        staticScene = glGenLists(1);
+    void createStaticSceneDisplayLists() {
+        staticScene = glGenLists(2);
         glNewList(staticScene, GL_COMPILE);
         {
             glBegin(GL_QUADS);
-            // Green field quad
-            glColor3f(0.604, 0.804, 0.196);
-            glVertex2f(0, 0);
-            glVertex2f(GlutApp::config.orthoRight, 0);
-            glColor3f(0, 0.392, 0);
-            glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop / 1.7);
-            glVertex2f(0, GlutApp::config.orthoTop / 1.7);
             // Sky quad
             glColor3ub(200, 240, 255);
             glVertex2f(0, GlutApp::config.orthoTop / 1.7);
@@ -89,6 +82,13 @@ private:
             glColor3ub(0, 183, 255);
             glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop);
             glVertex2f(0, GlutApp::config.orthoTop);
+            // Green field quad
+            glColor3f(0.604, 0.804, 0.196);
+            glVertex2f(0, 0);
+            glVertex2f(GlutApp::config.orthoRight, 0);
+            glColor3f(0, 0.392, 0);
+            glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop / 1.7);
+            glVertex2f(0, GlutApp::config.orthoTop / 1.7);
             // Static road quad
             glColor3ub(50, 50, 50);
             glVertex(roadLeftBottom);
@@ -99,15 +99,28 @@ private:
             glEnd();
         }
         glEndList();
+
+        glNewList(staticScene + 1, GL_COMPILE);
+        glColor(Color::YELLOW);
+        for (int i = 0; i < 2; i++) {
+            glutBitmapString(font, (const unsigned char *) texts[i].c_str());
+            glRasterPos(textsPosition[i]);
+            glColor(Color::BLACK);
+        }
+        glEndList();
     }
 
+    enum AnimationState {
+        START, BOTTOM_WEST, NORTH_WEST, TOP_WEST
+    };
+
+    AnimationState animState = START;
     Vector2 roadLeftBottom, roadRightTop, roadSize;
     Vector2 textsPosition[2];
     Car staticCar, overcomingCar;
     DemarcationLine demarcation;
     GLuint staticScene = 0;
-    bool isMessageDisplayed = true;
-    const string texts[2]{"\t\t\t\t\tPress SPACEBAR to start", "Overcome (OpenGL 1.0 Demo)"};
+    const string texts[2]{"\t\t\t\t\t\tPress ANY KEY to start", "Overcome (OpenGL 1.0 Demo)"};
     void *font = GLUT_BITMAP_TIMES_ROMAN_24;
 };
 

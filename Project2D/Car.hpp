@@ -19,8 +19,6 @@ private:
 public:
     Car() = default;
 
-    Car(const Vector2 &startPosition, const Color &color) : position(startPosition), bodyColor(color) {}
-
     Car(float x, float y, const Color &color) : position(x, y), bodyColor(color) {}
 
     void act(float delta) {
@@ -30,7 +28,8 @@ public:
 
     void draw() {
         glPushMatrix();
-        glTranslate(position);        // Translate the car at the current position
+        // Translate the car at the current position
+        glTranslate(position);
 
         glBegin(GL_QUADS);
         // Draw body quads
@@ -73,12 +72,16 @@ public:
         glPopMatrix();
     }
 
-    const Vector2 &getSpeed() const {
-        return speed;
-    }
-
     void setSpeed(const Vector2 &speed) {
         Car::speed = speed;
+    }
+
+    const Vector2 &getPosition() const {
+        return position;
+    }
+
+    Vector2 getRightPos() const {
+        return Vector2(position.x + getModelWidth(), position.y);
     }
 
     static void generateResources() {
@@ -107,10 +110,6 @@ public:
 
     static float getModelHeight() {
         return bodyVertices[7].y - bodyVertices[0].y + WHEEL_RADIUS;
-    }
-
-    static Vector2 getModelSize() {
-        return Vector2(getModelWidth(), getModelHeight());
     }
 
 private:

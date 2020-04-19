@@ -37,3 +37,7 @@ void glTranslate(const Vector3 &amount) {
 void glRect(const Vector2 &leftBottom, const Vector2 &rightTop) {
     glRectf(leftBottom.x, leftBottom.y, rightTop.x, rightTop.y);
 }
+
+void glRasterPos(const Vector2 &pos) {
+    glRasterPos2f(pos.x, pos.y);
+}

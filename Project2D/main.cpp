@@ -2,58 +2,44 @@
 #include <memory>
 #include "Car.hpp"
 #include "DemarcationLine.hpp"
-#include "utils/glUtils.hpp"
 
 using namespace std;
 
 class TrafficScene : public AppListener {
-    Vector2 roadLeftBottom, roadRightTop;
-    Car staticCar, overcomingCar;
-    unique_ptr<DemarcationLine> demarcation;
-    GLuint staticScene = 0;
-    bool isMessageDisplayed = true;
-    string bootUpMessage = "Press SPACEBAR to start demo";
-
 public:
     TrafficScene() = default;
 
     void create() override {
-        roadLeftBottom = {(float) GlutApp::config.orthoLeft, (float) GlutApp::config.orthoTop / 5};
-        roadRightTop = {(float) GlutApp::config.orthoRight, (float) GlutApp::config.orthoTop / 2.25f};
-        float roadWidth = roadRightTop.x - roadLeftBottom.x;
-        float roadHeight = roadRightTop.y - roadLeftBottom.y;
-        generateStaticScene();
-        demarcation = make_unique<DemarcationLine>(
-                roadLeftBottom.y + roadHeight / 2 - DemarcationLine::RECT_SIZE.y / 2);
+        initializeTextsPositions();
+        initializeDemarcationLine();
+        createStaticSceneDisplayList();
 
         Car::generateResources();
-        staticCar = Car(roadLeftBottom.x + roadWidth / 2 - Car::getModelWidth() / 2,
-                        roadRightTop.y - roadHeight / 2 + Car::getModelHeight() / 2, Color::BLUE);
-        overcomingCar = Car(roadWidth + 100, roadLeftBottom.y + roadHeight / 4, Color::RED);
+        staticCar = Car(roadLeftBottom.x + (roadSize.x - Car::getModelWidth()) / 2,
+                        roadRightTop.y - (roadSize.y - Car::getModelHeight()) / 2, Color::BLUE);
+        overcomingCar = Car(roadSize.x + 100, roadLeftBottom.y + roadSize.y / 4, Color::RED);
     }
 
-//TODO Draw distant scenery (Trees, mountains, sun...)
     void render(float delta) override {
         glClearColor(1, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Update logic
-        demarcation->act(delta);
+        demarcation.act(delta);
         staticCar.act(delta);
         overcomingCar.act(delta);
 
         // Draw objects
         glCallList(staticScene);
-        demarcation->draw();
+        demarcation.draw();
         staticCar.draw();
         overcomingCar.draw();
         if (isMessageDisplayed) {
-            float textX = (float) GlutApp::config.orthoRight / 2 - (float) (bootUpMessage.length() * 18) / 4;
-            float textY = (float) GlutApp::config.orthoTop / 1.25f;
-            glutBitmapString(GLUT_BITMAP_HELVETICA_18,
-                             reinterpret_cast<const unsigned char *>(bootUpMessage.c_str()));
-            glColor(Color::BLACK);
-            glRasterPos2f(textX, textY);
+            for (int i = 0; i < 2; i++) {
+                glutBitmapString(font, (const unsigned char *) texts[i].c_str());
+                glColor(Color::BLACK);
+                glRasterPos(textsPosition[i]);
+            }
         }
     }
 
@@ -67,18 +53,28 @@ public:
     }
 
 private:
-    void generateStaticScene() {
+    void initializeDemarcationLine() {
+        roadLeftBottom = Vector2((float) GlutApp::config.orthoLeft, (float) GlutApp::config.orthoTop / 5);
+        roadRightTop = Vector2((float) GlutApp::config.orthoRight, (float) GlutApp::config.orthoTop / 2.25f);
+        roadSize = roadRightTop - roadLeftBottom;
+
+        demarcation.setY(roadLeftBottom.y + (roadSize.y - DemarcationLine::RECT_SIZE.y) / 2);
+    }
+
+    void initializeTextsPositions() {
+        for (int i = 0; i < 2; ++i) {
+            float textX = ((float) GlutApp::config.orthoRight -
+                           (float) glutBitmapLength(font, (const unsigned char *) texts[i].c_str())) / 2;
+            float textY = (float) GlutApp::config.orthoTop / 1.25f - (float) (glutBitmapHeight(font) * i * 5);
+            textsPosition[i] = Vector2(textX, textY);
+        }
+    }
+
+    void createStaticSceneDisplayList() {
         staticScene = glGenLists(1);
         glNewList(staticScene, GL_COMPILE);
         {
             glBegin(GL_QUADS);
-            // Sky quad
-            glColor3ub(200, 240, 255);
-            glVertex2f(0, GlutApp::config.orthoTop / 2.25);
-            glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop / 2.25);
-            glColor3ub(0, 183, 255);
-            glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop);
-            glVertex2f(0, GlutApp::config.orthoTop);
             // Green field quad
             glColor3f(0.604, 0.804, 0.196);
             glVertex2f(0, 0);
@@ -86,13 +82,33 @@ private:
             glColor3f(0, 0.392, 0);
             glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop / 1.7);
             glVertex2f(0, GlutApp::config.orthoTop / 1.7);
+            // Sky quad
+            glColor3ub(200, 240, 255);
+            glVertex2f(0, GlutApp::config.orthoTop / 1.7);
+            glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop / 1.7);
+            glColor3ub(0, 183, 255);
+            glVertex2f(GlutApp::config.orthoRight, GlutApp::config.orthoTop);
+            glVertex2f(0, GlutApp::config.orthoTop);
+            // Static road quad
+            glColor3ub(50, 50, 50);
+            glVertex(roadLeftBottom);
+            glVertex2f(roadRightTop.x, roadLeftBottom.y);
+            glColor3ub(30, 30, 30);
+            glVertex(roadRightTop);
+            glVertex2f(roadLeftBottom.x, roadRightTop.y);
             glEnd();
-
-            glColor(Color::BLACK);
-            glRect(roadLeftBottom, roadRightTop);
         }
         glEndList();
     }
+
+    Vector2 roadLeftBottom, roadRightTop, roadSize;
+    Vector2 textsPosition[2];
+    Car staticCar, overcomingCar;
+    DemarcationLine demarcation;
+    GLuint staticScene = 0;
+    bool isMessageDisplayed = true;
+    const string texts[2]{"\t\t\t\t\tPress SPACEBAR to start", "Overcome (OpenGL 1.0 Demo)"};
+    void *font = GLUT_BITMAP_TIMES_ROMAN_24;
 };
 
 int main(int argc, char *argv[]) {

@@ -8,9 +8,9 @@
 
 class DemarcationLine {
 public:
-    static Vector2 SPEED, RECT_SIZE;
-    static int RECTANGLES_NUM;
-    static float DIST_IN_BETWEEN;
+    static const Vector2 SPEED, RECT_SIZE;
+    static constexpr int RECTANGLES_NUM = 12;
+    static constexpr float DIST_IN_BETWEEN = 40;
 private:
     Vector2 position;
     std::deque<Vector2> rectanglesPos;
@@ -24,9 +24,9 @@ public:
 
     void act(float delta) {
         // We constantly update every rectangle's position
-        for (auto &rectPos : rectanglesPos) {
+        for (auto &rectPos : rectanglesPos)
             rectPos += SPEED * delta;
-        }
+
         if (rectanglesPos.back().x >= (float) GlutApp::config.orthoRight) {
             rectanglesPos.pop_back();
             rectanglesPos.push_front(position - Vector2(RECT_SIZE.x, 0));
@@ -59,7 +59,5 @@ private:
     }
 };
 
-Vector2 DemarcationLine::SPEED{400, 0};
-Vector2 DemarcationLine::RECT_SIZE{90, 25};
-int DemarcationLine::RECTANGLES_NUM = 12;
-float DemarcationLine::DIST_IN_BETWEEN = 40;
+const Vector2 DemarcationLine::SPEED{400, 0};
+const Vector2 DemarcationLine::RECT_SIZE{90, 25};

@@ -5,16 +5,14 @@
 #include "utils/glUtils.hpp"
 #include "utils/math/Circle.hpp"
 
-
 class Car {
 public:
-    static constexpr float wheelRadius = 30.0f;
-
+    static constexpr float WHEEL_RADIUS = 30.0f;
 private:
+    static const Circle circle;
+    static const Color tireColor, wheelPlateColor;
     static Vector2 bodyVertices[8];
     static Vector2 windowVertices[4];
-    static Circle circle;
-    static Color tireColor, wheelPlateColor;
     Color bodyColor;
     Vector2 position, speed;
 
@@ -35,13 +33,20 @@ public:
         glTranslate(position);        // Translate the car at the current position
 
         glBegin(GL_QUADS);
+        // Draw body quads
+        glColor(bodyColor);
+        for (const auto &vert : bodyVertices) glVertex(vert);
+        glEnd();
+        glBegin(GL_QUADS);
         {
-            // Draw body quads
-            glColor(bodyColor);
-            for (const auto &vert : bodyVertices) glVertex(vert);
             // Draw first window quad
             glColor(Color::BLACK);
-            for (const auto &vert : windowVertices) glVertex(vert);
+            glVertex(windowVertices[0]);
+            glColor3ub(50, 50, 50);
+            glVertex(windowVertices[1]);
+            glVertex(windowVertices[2]);
+            glColor(Color::BLACK);
+            glVertex(windowVertices[3]);
         }
         glEnd();
         // Draw second window quad rotated
@@ -51,8 +56,13 @@ public:
         glTranslatef(-windowVertices[2].x - 15 / 2.f, -windowVertices[2].y, 0);
         glBegin(GL_QUADS);
         {
+            glColor3ub(50, 50, 50);
+            glVertex(windowVertices[0]);
             glColor(Color::BLACK);
-            for (const auto &vert : windowVertices) glVertex(vert);
+            glVertex(windowVertices[1]);
+            glVertex(windowVertices[2]);
+            glColor3ub(50, 50, 50);
+            glVertex(windowVertices[3]);
         }
         glEnd();
         glPopMatrix();
@@ -89,10 +99,6 @@ public:
         windowVertices[1].set(bodyVertices[4]).x += bodyVertices[4].dist(bodyVertices[5]) / 2 - offset;
         windowVertices[2].set(windowVertices[1]).y += (bodyVertices[7].y - bodyVertices[4].y) - offset / 2;
         windowVertices[3].set(bodyVertices[7]).y -= offset / 2;
-
-        circle = {{100, 0}, wheelRadius};
-        tireColor = {(uint8_t) 40, 40, 40};
-        wheelPlateColor = {0.7f, 0.7f, 0.7f};
     }
 
     static float getModelWidth() {
@@ -100,7 +106,7 @@ public:
     }
 
     static float getModelHeight() {
-        return bodyVertices[7].y - bodyVertices[0].y + wheelRadius;
+        return bodyVertices[7].y - bodyVertices[0].y + WHEEL_RADIUS;
     }
 
     static Vector2 getModelSize() {
@@ -129,8 +135,8 @@ private:
     }
 };
 
+const Circle Car::circle{{100, 0}, WHEEL_RADIUS};
+const Color Car::tireColor{(uint8_t) 20, 20, 20};
+const Color Car::wheelPlateColor{0.7f, 0.7f, 0.7f};
 Vector2 Car::bodyVertices[8]{};
 Vector2 Car::windowVertices[4]{};
-Circle Car::circle{};
-Color Car::tireColor{};
-Color Car::wheelPlateColor{};

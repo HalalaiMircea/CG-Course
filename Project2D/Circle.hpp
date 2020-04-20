@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vector.hpp"
-#include "../glUtils.hpp"
+#include "utils/math/Vector.hpp"
+#include "utils/glUtils.hpp"
 
 class Circle {
     Vector2 vertices[360];
@@ -45,7 +45,8 @@ private:
     void computeVertices() {
         for (int i = 0; i < 360; ++i) {
             float th = (float) i * degToRad;
-            vertices[i] = Vector2(position.x + radius * std::cos(th), position.y + radius * std::sin(th));
+            vertices[i] = Vector2(position.x + radius * std::cos(th),
+                                  position.y + radius * std::sin(th));
         }
     }
 };

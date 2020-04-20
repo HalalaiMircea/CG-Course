@@ -33,6 +33,10 @@ public:
         } else if (animState == NORTH_WEST && overcomingCar.getPosition().y >= staticCar.getPosition().y) {
             overcomingCar.setSpeed({-100, 0});
             animState = TOP_WEST;
+        } else if (animState == TOP_WEST && overcomingCar.getRightPos().x <= roadLeftBottom.x) {
+            overcomingCar.setSpeed({0, 0});
+            overcomingCar.setPosition({roadSize.x + 100, roadLeftBottom.y + roadSize.y / 4});
+            animState = START;
         }
 
         // Draw objects
@@ -46,28 +50,29 @@ public:
 
     void keyboardDown(unsigned char key, int x, int y) override {
         if (animState == START) {
-            animState = BOTTOM_WEST;
             overcomingCar.setSpeed({-100, 0});
-        } else if (key == 27)
+            animState = BOTTOM_WEST;
+        }
+        if (key == 27)
             GlutApp::exit();
     }
 
 private:
+    void initializeTextsPositions() {
+        for (int i = 0; i < 2; ++i) {
+            float textX = (float) GlutApp::config.orthoRight / 2 -
+                          (float) glutBitmapLength(font, (const unsigned char *) texts[i].c_str()) / 2;
+            float textY = (float) GlutApp::config.orthoTop / 1.25f - (float) (glutBitmapHeight(font) * i * 5);
+            textsPosition[i] = Vector2(textX, textY);
+        }
+    }
+
     void initializeDemarcationLine() {
         roadLeftBottom = Vector2((float) GlutApp::config.orthoLeft, (float) GlutApp::config.orthoTop / 5);
         roadRightTop = Vector2((float) GlutApp::config.orthoRight, (float) GlutApp::config.orthoTop / 2.25f);
         roadSize = roadRightTop - roadLeftBottom;
 
         demarcation.setY(roadLeftBottom.y + (roadSize.y - DemarcationLine::RECT_SIZE.y) / 2);
-    }
-
-    void initializeTextsPositions() {
-        for (int i = 0; i < 2; ++i) {
-            float textX = ((float) GlutApp::config.orthoRight -
-                           (float) glutBitmapLength(font, (const unsigned char *) texts[i].c_str())) / 2;
-            float textY = (float) GlutApp::config.orthoTop / 1.25f - (float) (glutBitmapHeight(font) * i * 5);
-            textsPosition[i] = Vector2(textX, textY);
-        }
     }
 
     void createStaticSceneDisplayLists() {
@@ -120,7 +125,7 @@ private:
     Car staticCar, overcomingCar;
     DemarcationLine demarcation;
     GLuint staticScene = 0;
-    const string texts[2]{"\t\t\t\t\t\tPress ANY KEY to start", "Overcome (OpenGL 1.0 Demo)"};
+    const string texts[2]{"\t\t\t\t\t\t\tPress ANY KEY to start", "Overcome (OpenGL 1.0 Demo)"};
     void *font = GLUT_BITMAP_TIMES_ROMAN_24;
 };
 

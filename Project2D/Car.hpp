@@ -3,7 +3,7 @@
 #include "utils/math/Vector.hpp"
 #include "utils/Color.hpp"
 #include "utils/glUtils.hpp"
-#include "utils/math/Circle.hpp"
+#include "Circle.hpp"
 
 class Car {
 public:
@@ -74,6 +74,10 @@ public:
 
     void setSpeed(const Vector2 &speed) {
         Car::speed = speed;
+    }
+
+    void setPosition(const Vector2 &position) {
+        this->position = position;
     }
 
     const Vector2 &getPosition() const {

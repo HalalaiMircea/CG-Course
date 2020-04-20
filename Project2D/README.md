@@ -3,4 +3,4 @@ This is the first project in the Computer Graphics course during the third year 
 Computer Science Faculty.
 
 ## Video Demo
-[![video](img\vid-thumbnail.png)](https://drive.google.com/open?id=1kKBHZeOqdT8dpVWLqupvP8QAYHyjqHtH)
+[![video](img/vid-thumbnail.png)](https://drive.google.com/open?id=1kKBHZeOqdT8dpVWLqupvP8QAYHyjqHtH)

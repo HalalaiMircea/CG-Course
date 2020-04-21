@@ -10,5 +10,6 @@ else ()
     set(GL_LIBS -lglut -lGL -lGLU)
 endif ()
 
-add_executable(Project2D main.cpp utils/AppListener.hpp utils/GlutApp.hpp Car.hpp utils/glUtils.hpp Circle.hpp DemarcationLine.hpp)
+add_executable(Project2D src/main.cpp src/utils/AppListener.hpp src/utils/GlutApp.hpp
+        src/Car.hpp src/utils/glUtils.hpp src/Circle.hpp src/DemarcationLine.hpp)
 target_link_libraries(Project2D ${GL_LIBS})

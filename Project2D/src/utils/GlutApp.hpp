@@ -51,7 +51,6 @@ public:
 
     virtual ~GlutApp() {
         delete listener;
-        std::cout << "Glut application terminated\n";
     }
 
     static void exit() {

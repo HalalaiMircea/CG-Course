@@ -2,6 +2,8 @@
 #include <memory>
 #include "Car.hpp"
 #include "DemarcationLine.hpp"
+#include "utils/glUtils.hpp"
+#include "utils/GlutApp.hpp"
 
 using namespace std;
 

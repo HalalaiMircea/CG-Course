@@ -29,16 +29,17 @@ public:
         // Update logic
         demarcation.act(delta);
         overcomingCar.act(delta);
-        if (animState == BOTTOM_WEST && overcomingCar.getRightPos().x <= staticCar.getPosition().x) {
+        if (animState == AnimationState::BOTTOM_WEST && overcomingCar.getRightPos().x <= staticCar.getPosition().x) {
             overcomingCar.setSpeed({-100, 50});
-            animState = NORTH_WEST;
-        } else if (animState == NORTH_WEST && overcomingCar.getPosition().y >= staticCar.getPosition().y) {
+            animState = AnimationState::NORTH_WEST;
+        } else if (animState == AnimationState::NORTH_WEST &&
+                   overcomingCar.getPosition().y >= staticCar.getPosition().y) {
             overcomingCar.setSpeed({-100, 0});
-            animState = TOP_WEST;
-        } else if (animState == TOP_WEST && overcomingCar.getRightPos().x <= roadLeftBottom.x) {
+            animState = AnimationState::TOP_WEST;
+        } else if (animState == AnimationState::TOP_WEST && overcomingCar.getRightPos().x <= roadLeftBottom.x) {
             overcomingCar.setSpeed({0, 0});
             overcomingCar.setPosition({roadSize.x + 100, roadLeftBottom.y + roadSize.y / 4});
-            animState = START;
+            animState = AnimationState::START;
         }
 
         // Draw objects
@@ -46,14 +47,14 @@ public:
         demarcation.draw();
         staticCar.draw();
         overcomingCar.draw();
-        if (animState == START)
+        if (animState == AnimationState::START)
             glCallList(staticScene + 1);
     }
 
     void keyboardDown(unsigned char key, int x, int y) override {
-        if (animState == START) {
+        if (animState == AnimationState::START) {
             overcomingCar.setSpeed({-100, 0});
-            animState = BOTTOM_WEST;
+            animState = AnimationState::BOTTOM_WEST;
         }
         if (key == 27)
             GlutApp::exit();
@@ -117,11 +118,11 @@ private:
         glEndList();
     }
 
-    enum AnimationState {
+    enum class AnimationState {
         START, BOTTOM_WEST, NORTH_WEST, TOP_WEST
     };
 
-    AnimationState animState = START;
+    AnimationState animState;
     Vector2 roadLeftBottom, roadRightTop, roadSize;
     Vector2 textsPosition[2];
     Car staticCar, overcomingCar;

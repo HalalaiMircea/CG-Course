@@ -32,7 +32,7 @@ void calcHexagonVertices(int length, Point center) {
     indices = {0, 3, 4, 5, 0, 5, 6, 1, 0, 1, 2, 3};
 }
 
-void init() { // initializare fereastra de vizualizare
+void initialize() { // initializare fereastra de vizualizare
     glClearColor(0, 1.0, 1.0, 1.0); // precizeaza culoarea de fond a ferestrei de vizualizare
     glMatrixMode(GL_PROJECTION);  // se precizeaza este vorba de o reprezentare 2D, realizata prin proiectie ortogonala
     gluOrtho2D(0.0, WIDTH, 0.0, HEIGHT); // sunt indicate coordonatele extreme ale ferestrei de vizualizare
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     Point p(WIDTH / 2, HEIGHT / 2);
     calcHexagonVertices(200, p);
 
-    init(); // executa procedura de initializare
+    initialize(); // executa procedura de initializare
     glClear(GL_COLOR_BUFFER_BIT);
     glutDisplayFunc(render); // procedura desen este invocata ori de cate ori este nevoie
     glutMainLoop(); // ultima instructiune a programului, asteapta (eventuale) noi date de intrare

@@ -10,6 +10,9 @@ DemarcationLine::DemarcationLine(float yPos) : position(0, yPos) {
 }
 
 void DemarcationLine::act(float delta) {
+    if (delta > 1.0f / 20.0f) {
+        delta = 1.0f / 20.0f;
+    }
     // We constantly update every rectangle's position
     for (auto &rectPos : rectanglesPos)
         rectPos += SPEED * delta;

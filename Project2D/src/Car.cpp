@@ -11,6 +11,9 @@ Vector2 Car::windowVertices[4]{};
 Car::Car(float x, float y, const Color &color) : position(x, y), bodyColor(color) {}
 
 void Car::act(float delta) {
+    if (delta > 1.0f / 20.0f) {
+        delta = 1.0f / 20.0f;
+    }
     // Update the position each frame, scaled by frametime
     position += speed * delta;
 }

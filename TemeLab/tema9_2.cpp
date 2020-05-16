@@ -1,37 +1,32 @@
 #include <GL/freeglut.h>
 #include <SOIL.h>
 
-unsigned char *image1, *image2;
-int textureWidth1, textureHeight1, textureWidth2, textureHeight2;
+GLuint textureIDs[2];
 
-void loadTexture() {
-    GLuint texture = 0;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    // Set texture wrapping to GL_REPEAT
+void loadTextures() {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    image1 = SOIL_load_image("text_smiley_face.png", &textureWidth1, &textureHeight1, 0, SOIL_LOAD_RGB);
-    image2 = SOIL_load_image("text_earth.bmp", &textureWidth2, &textureHeight2, 0, SOIL_LOAD_RGB);
+    textureIDs[0] = SOIL_load_OGL_texture("text_smiley_face.png", 0, false, 0);
+    textureIDs[1] = SOIL_load_OGL_texture("text_earth.bmp", 0, false, 0);
 }
 
 void init() {
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    loadTexture();
     glEnable(GL_CULL_FACE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    loadTextures();
 }
 
 static void drawLeftTriangle() {
     /* draw yellow triangle on LHS of screen */
 
-    glBegin(GL_TRIANGLES);
     glColor4f(1.0, 1.0, 0.0, 0.75);
+    glBegin(GL_TRIANGLES);
     glVertex2f(0.1, 0.9);
     glVertex2f(0.1, 0.1);
     glVertex2f(0.7, 0.5);
@@ -41,8 +36,8 @@ static void drawLeftTriangle() {
 static void drawRightTriangle() {
     /* draw cyan triangle on RHS of screen */
 
-    glBegin(GL_TRIANGLES);
     glColor4f(0.0, 1.0, 1.0, 0.75);
+    glBegin(GL_TRIANGLES);
     glVertex2f(0.9, 0.9);
     glVertex2f(0.3, 0.5);
     glVertex2f(0.9, 0.1);
@@ -62,10 +57,10 @@ void display() {
     }
     glPopMatrix();
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth1, textureHeight1, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-
     glPushMatrix();
     {
+        glBindTexture(GL_TEXTURE_2D, textureIDs[0]);
+
         glScalef(2, 2, 1);
         glBegin(GL_QUADS);
         glTexCoord2f(0, 1); glColor4f(1.0, 0.1, 0.1, 0.9f); glVertex2f(-2, -1);
@@ -74,7 +69,7 @@ void display() {
         glTexCoord2f(0, 0); glColor4f(0.0, 0.1, 1.0, 0.9f); glVertex2f(-2, 1);
         glEnd();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth2, textureHeight2, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
+        glBindTexture(GL_TEXTURE_2D, textureIDs[1]);
 
         glColor4f(1.0, 1.0, 1.0, 0.7f);
         glBegin(GL_QUADS);
@@ -107,9 +102,8 @@ void reshape(int w, int h) {
 
 void keyboard(unsigned char key, int x, int y) {
     if (key == 27) {
-        SOIL_free_image_data(image1);
-        SOIL_free_image_data(image2);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glDeleteTextures(2, textureIDs);
         exit(0);
     }
 }

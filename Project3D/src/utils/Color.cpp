@@ -18,3 +18,16 @@ Color::Color(uint8_t r, uint8_t g, uint8_t b)
         : Color(static_cast<float>(r) / 255,
                 static_cast<float>(g) / 255,
                 static_cast<float>(b) / 255) {}
+
+
+void Color::toArray(float rgba[4]) const {
+    rgba[0] = r;
+    rgba[1] = g;
+    rgba[2] = b;
+    rgba[3] = 1.f;
+}
+
+std::ostream &operator<<(std::ostream &os, const Color &color) {
+    os << "Color(r: " << color.r << " g: " << color.g << " b: " << color.b << ")";
+    return os;
+}

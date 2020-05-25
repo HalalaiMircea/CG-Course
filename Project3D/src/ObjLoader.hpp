@@ -2,8 +2,10 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <ostream>
 #include <GL/gl.h>
+#include "ModelMaterial.hpp"
 
 class ObjLoader {
 public:
@@ -12,6 +14,11 @@ public:
 private:
     static std::vector<std::string> splitString(const std::string &str, char delimiter);
 
+    static void ltrim(std::string &s);
+
+    static void rtrim(std::string &s);
+
+    static void trim(std::string &s);
 
 public:
     struct Face {
@@ -31,8 +38,18 @@ public:
 
         int size() const;
 
+    private:
         static int getIndex(const std::string &index);
 
         friend std::ostream &operator<<(std::ostream &os, const Face &face);
     };
+
+private:
+    class MtlLoader {
+    public:
+        static std::unordered_map<std::string, ModelMaterial> load(const std::string &filename);
+
+    };
 };
+
+

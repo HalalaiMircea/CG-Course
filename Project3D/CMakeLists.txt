@@ -10,5 +10,6 @@ else ()
     set(GL_LIBS -lglut -lGL -lGLU)
 endif ()
 
-add_executable(${PROJECT_NAME} src/main.cpp src/utils/Color.cpp src/utils/GlutApp3D.cpp src/utils/glUtils.cpp src/ObjLoader.cpp src/ObjLoader.hpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/utils/Color.cpp src/utils/GlutApp3D.cpp src/utils/glUtils.cpp
+        src/ObjLoader.cpp src/ObjLoader.hpp src/ModelMaterial.hpp)
 target_link_libraries(${PROJECT_NAME} ${GL_LIBS})

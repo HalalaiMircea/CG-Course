@@ -77,12 +77,11 @@ public:
         // Reset transformations
         glLoadIdentity();
 
-        // Set the camera
         moveCamera();
 
         // Draw ground
-        float groundMaterialCoeff[] = {0.9f, 0.9f, 0.9f, 1.f};
-        glMaterialfv(GL_FRONT, GL_AMBIENT, groundMaterialCoeff);
+        float groundMaterialCoeff[] = {0.f, 0.9f, 0.f, 1.f};
+        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, groundMaterialCoeff);
         glColor(groundColor);
         glBegin(GL_QUADS);
         glVertex3f(-100.0f, 0.0f, -100.0f);
@@ -91,12 +90,12 @@ public:
         glVertex3f(100.0f, 0.0f, -100.0f);
         glEnd();
 
-        glEnable(GL_BLEND);
+        //glEnable(GL_BLEND);
         // Draw 36 objects
         for (int i = -3; i < 3; i++)
             for (int j = -3; j < 3; j++) {
 //            if ((i + j) % 2)
-                glBlendFunc(GL_ONE, GL_ZERO);
+                //glBlendFunc(GL_ONE, GL_ZERO);
                 /*else
                     glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR);*/
                 glPushMatrix();
@@ -104,13 +103,13 @@ public:
                 glCallList(displayList);
                 glPopMatrix();
             }
-        glDisable(GL_BLEND);
+        //glDisable(GL_BLEND);
 
         // sursa de lumina
-        float pozitial0[] = {0.0, 50, 0.0, 1.0};
-        float ambientLight[] = {0.4f, 0.4f, 0.7f, 0.0};
+        float pozitial0[] = {0.0, 100, 0.0, 1.0};
+        float ambientLight[] = {1.f, 1.f, 1.f, 0.0};
         glLightfv(GL_LIGHT0, GL_POSITION, pozitial0);
-        glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+        glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, ambientLight);
 
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
@@ -147,7 +146,7 @@ private:
         if (keyStates['s'])
             cameraPosition -= cameraDirection * velocity * GlutApp3D::getDeltaTime();
 
-        gluLookAt(cameraPosition.x, 1.0f, cameraPosition.z, cameraPosition.x + cameraDirection.x, 1.0f,
+        gluLookAt(cameraPosition.x, 2.0f, cameraPosition.z, cameraPosition.x + cameraDirection.x, 2.0f,
                   cameraPosition.z + cameraDirection.z, 0.0f, 1.0f, 0.0f);
     }
 };

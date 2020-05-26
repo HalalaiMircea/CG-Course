@@ -24,3 +24,5 @@ void glRasterPos(const Vector2 &pos);
 void glNormal(const Vector3 &norm);
 
 void glTexCoord(const Vector2 &texCoord);
+
+void gluLookAt(const Vector3 &camPos, const Vector3 &camDirection, const Vector3 &up);

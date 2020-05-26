@@ -145,7 +145,7 @@ void renderScene() {
 
     // sursa de lumina
     float pozitial0[] = {0.0, 50, 0.0, 1.0};
-    float ambientLight[] = {0.5f, 0.5f, 0.7f, 0.0};
+    float ambientLight[] = {0.5f, 0.5f, 0.7f, 1.0};
     glLightfv(GL_LIGHT0, GL_POSITION, pozitial0);
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 

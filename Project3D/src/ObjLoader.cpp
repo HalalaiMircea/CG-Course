@@ -5,7 +5,10 @@
 #include <iostream>
 #include <algorithm>
 
-GLuint ObjLoader::loadModel(const std::string &filename) {
+
+float ObjLoader::lowestVertexY;
+
+GLuint ObjLoader::loadModel(const std::string &parentDir, const std::string &filename) {
     using namespace std;
     string line;
     vector<string> tokens;
@@ -14,13 +17,15 @@ GLuint ObjLoader::loadModel(const std::string &filename) {
     vector<Vector2> texCoords;
     unordered_map<string, vector<Face>> materialFaceMap;
     unordered_map<string, ModelMaterial> materials;
-    string currentMaterial;
+    string currentMaterial = "default";
 
-    ifstream inputStream(filename);
+    ifstream inputStream(parentDir + filename);
     if (!inputStream.is_open()) {
-        cerr << "Error reading file " + filename << '\n';
+        cerr << "Cannot open OBJ file " << parentDir + filename << '\n';
         exit(69);
     }
+
+    lowestVertexY = numeric_limits<float>::max();
 
     while (getline(inputStream, line)) {
         tokens = splitString(line, ' ');
@@ -28,6 +33,7 @@ GLuint ObjLoader::loadModel(const std::string &filename) {
 
         if (tokens[0].length() == 0 || tokens[0].at(0) == '#') continue;
         else if (tokens[0] == "v") {
+            lowestVertexY = min(stof(tokens[2]), lowestVertexY);
             verts.emplace_back(stof(tokens[1]), stof(tokens[2]), stof(tokens[3]));
         } else if (tokens[0] == "vn") {
             norms.emplace_back(stof(tokens[1]), stof(tokens[2]), stof(tokens[3]));
@@ -48,7 +54,7 @@ GLuint ObjLoader::loadModel(const std::string &filename) {
             }
             materialFaceMap[currentMaterial].push_back(face); // We add a new face to current material
         } else if (tokens[0] == "mtllib") {
-            materials = MtlLoader::load("../assets/" + tokens[1]);
+            materials = MtlLoader::load(parentDir + tokens[1]);
         } else if (tokens[0] == "usemtl") {
             if (tokens.size() == 1)
                 currentMaterial = "default";
@@ -58,11 +64,12 @@ GLuint ObjLoader::loadModel(const std::string &filename) {
     }
     inputStream.close();
 
+    float ambientColor[4], diffuseColor[4], specularColor[4], emissiveColor[4];
+
     GLuint listId = glGenLists(1);
     glNewList(listId, GL_COMPILE);
     for (auto &mapEntry : materialFaceMap) {
         ModelMaterial &material = materials[mapEntry.first];
-        float ambientColor[4], diffuseColor[4], specularColor[4], emissiveColor[4];
 
         material.ambient.toArray(ambientColor);
         material.diffuse.toArray(diffuseColor);
@@ -165,20 +172,15 @@ int ObjLoader::Face::size() const {
 
 std::unordered_map<std::string, ModelMaterial> ObjLoader::MtlLoader::load(const std::string &filename) {
     using namespace std;
-    unordered_map<string, ModelMaterial> materials;
     string line;
     vector<string> tokens;
-    string curMatName = "default";
-    Color ambientcolor = Color::WHITE;
-    Color difcolor = Color::WHITE;
-    Color speccolor = Color::WHITE;
-    Color emissivecolor = Color::BLACK;
-    float shininess = 0.f;
-    //string texFilename;
+
+    ModelMaterial currentMat;
+    unordered_map<string, ModelMaterial> materials;
 
     ifstream inputStream(filename);
     if (!inputStream.is_open()) {
-        cerr << "Error reading file " + filename << '\n';
+        cerr << "Cannot open MTL file " + filename << '\n';
         exit(69);
     }
 
@@ -196,27 +198,15 @@ std::unordered_map<std::string, ModelMaterial> ObjLoader::MtlLoader::load(const 
             // to lower case
             transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
             if (key == "newmtl") {
-                // Add attributes for the previously parsed material
-                ModelMaterial mat;
-                mat.id = curMatName;
-                mat.ambient = ambientcolor;
-                mat.diffuse = difcolor;
-                mat.specular = speccolor;
-                mat.emissive = emissivecolor;
-                mat.shininess = shininess;
-                materials[curMatName] = mat;
-
-                if (tokens.size() > 1) {
-                    curMatName = tokens[1];
-                } else
-                    curMatName = "default";
+                // Add previously parsed material to the map
+                materials[currentMat.id] = currentMat;
 
                 // Reset attributes to defaults
-                ambientcolor = Color::WHITE;
-                difcolor = Color::WHITE;
-                speccolor = Color::WHITE;
-                emissivecolor = Color::BLACK;
-                shininess = 0.f;
+                currentMat = ModelMaterial();
+
+                if (tokens.size() > 1)
+                    currentMat.id = tokens[1];
+
             } else if (key == "ka" || key == "kd" || key == "ks" || key == "ke") {
                 float r = stof(tokens[1]);
                 float g = stof(tokens[2]);
@@ -224,25 +214,18 @@ std::unordered_map<std::string, ModelMaterial> ObjLoader::MtlLoader::load(const 
                 //float a = 1;
                 //if (tokens.size() > 4) a = stof(tokens[4]);
 
-                if (key == "ka") ambientcolor = Color(r, g, b);
-                else if (key == "kd") difcolor = Color(r, g, b);
-                else if (key == "ks") speccolor = Color(r, g, b);
-                else if (key == "ke") emissivecolor = Color(r, g, b);
+                if (key == "ka") currentMat.ambient = Color(r, g, b);
+                else if (key == "kd") currentMat.diffuse = Color(r, g, b);
+                else if (key == "ks") currentMat.specular = Color(r, g, b);
+                else if (key == "ke") currentMat.emissive = Color(r, g, b);
 
-            } else if (key == "ns") shininess = stof(tokens[1]);
+            } else if (key == "ns") currentMat.shininess = stof(tokens[1]);
         }
     }
     inputStream.close();
 
-    // last material
-    ModelMaterial mat;
-    mat.id = curMatName;
-    mat.ambient = ambientcolor;
-    mat.diffuse = difcolor;
-    mat.specular = speccolor;
-    mat.emissive = emissivecolor;
-    mat.shininess = shininess;
-    materials[curMatName] = mat;
+    // Add last material
+    materials[currentMat.id] = currentMat;
 
     return materials;
 }

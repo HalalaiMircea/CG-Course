@@ -9,15 +9,14 @@
 
 class ObjLoader {
 public:
-    static GLuint loadModel(const std::string &filename);
+    static float lowestVertexY;
+
+    static GLuint loadModel(const std::string &parentDir, const std::string &filename);
 
 private:
     static std::vector<std::string> splitString(const std::string &str, char delimiter);
-
     static void ltrim(std::string &s);
-
     static void rtrim(std::string &s);
-
     static void trim(std::string &s);
 
 public:
@@ -27,28 +26,20 @@ public:
         std::vector<int> normIndices;
 
         void addVertIdx(const std::string &indexStr);
-
         void addTexIdx(const std::string &indexStr);
-
         void addNormIdx(const std::string &indexStr);
-
         bool hasTexCoords() const;
-
         bool hasNormals() const;
-
         int size() const;
 
     private:
         static int getIndex(const std::string &index);
-
         friend std::ostream &operator<<(std::ostream &os, const Face &face);
     };
 
 private:
-    class MtlLoader {
-    public:
+    struct MtlLoader {
         static std::unordered_map<std::string, ModelMaterial> load(const std::string &filename);
-
     };
 };
 

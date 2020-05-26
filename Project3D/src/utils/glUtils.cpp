@@ -1,5 +1,6 @@
 #include "glUtils.hpp"
 #include <GL/gl.h>
+#include <GL/glu.h>
 
 
 void glVertex(const Vector2 &v) {
@@ -46,4 +47,8 @@ void glNormal(const Vector3 &norm) {
 
 void glTexCoord(const Vector2 &texCoord) {
     glTexCoord2f(texCoord.x, texCoord.y);
+}
+
+void gluLookAt(const Vector3 &camPos, const Vector3 &camDirection, const Vector3 &up) {
+    gluLookAt(camPos.x, camPos.y, camPos.z, camDirection.x, camDirection.y, camDirection.z, up.x, up.y, up.z);
 }

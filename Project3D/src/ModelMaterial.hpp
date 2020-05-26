@@ -6,14 +6,14 @@
 
 
 struct ModelMaterial {
-    std::string id;
+    std::string id = "default";
 
-    Color ambient;
-    Color diffuse;
-    Color specular;
-    Color emissive;
+    Color ambient = Color::WHITE;
+    Color diffuse = Color::WHITE;
+    Color specular = Color::WHITE;
+    Color emissive = Color::BLACK;
 
-    float shininess = 0;
+    float shininess = 0.f;
 
     friend std::ostream &operator<<(std::ostream &os, const ModelMaterial &material) {
         os << "id: " << material.id << "\nambient: " << material.ambient << "\ndiffuse: " << material.diffuse

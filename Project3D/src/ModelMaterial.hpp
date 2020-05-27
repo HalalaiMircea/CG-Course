@@ -14,6 +14,7 @@ struct ModelMaterial {
     Color emissive = Color::BLACK;
 
     float shininess = 0.f;
+    unsigned int diffTexture = 0;
 
     friend std::ostream &operator<<(std::ostream &os, const ModelMaterial &material) {
         os << "id: " << material.id << "\nambient: " << material.ambient << "\ndiffuse: " << material.diffuse

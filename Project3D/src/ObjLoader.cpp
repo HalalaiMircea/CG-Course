@@ -4,11 +4,12 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <SOIL.h>
 
 
 float ObjLoader::lowestVertexY;
 
-GLuint ObjLoader::loadModel(const std::string &parentDir, const std::string &filename) {
+GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
     using namespace std;
     string line;
     vector<string> tokens;
@@ -54,7 +55,7 @@ GLuint ObjLoader::loadModel(const std::string &parentDir, const std::string &fil
             }
             materialFaceMap[currentMaterial].push_back(face); // We add a new face to current material
         } else if (tokens[0] == "mtllib") {
-            materials = MtlLoader::load(parentDir + tokens[1]);
+            materials = loadMTL(parentDir, tokens[1]);
         } else if (tokens[0] == "usemtl") {
             if (tokens.size() == 1)
                 currentMaterial = "default";
@@ -82,6 +83,8 @@ GLuint ObjLoader::loadModel(const std::string &parentDir, const std::string &fil
         glMaterialfv(GL_FRONT, GL_EMISSION, emissiveColor);
         glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
 
+        glBindTexture(GL_TEXTURE_2D, material.diffTexture);
+
         for (auto &face : mapEntry.second) {
             glBegin(GL_POLYGON);
             for (int i = 0; i < face.size(); ++i) {
@@ -96,7 +99,67 @@ GLuint ObjLoader::loadModel(const std::string &parentDir, const std::string &fil
     return listId;
 }
 
-std::vector<std::string> ObjLoader::splitString(const std::string &str, char delimiter) {
+unordered_map<string, ModelMaterial> ObjLoader::loadMTL(const string &parentDir, const string &filename) {
+    using namespace std;
+    string line;
+    vector<string> tokens;
+
+    ModelMaterial currentMat;
+    string texFilename;
+    unordered_map<string, ModelMaterial> materials;
+
+    ifstream inputStream(filename);
+    if (!inputStream.is_open()) {
+        cerr << "Cannot open MTL file " + filename << '\n';
+        exit(69);
+    }
+
+    while (getline(inputStream, line)) {
+
+        if (!line.empty() && line.at(0) == '\t') {
+            line = line.substr(1);
+            trim(line);
+        }
+
+        tokens = splitString(line, ' ');
+
+        if (tokens[0].empty() || tokens[0].at(0) == '#') continue;
+        else {
+            string key = tokens[0];
+            // to lower case
+            transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
+            if (key == "newmtl") {
+                // Add previously parsed material to the map
+                if (!texFilename.empty())
+                    currentMat.diffTexture = SOIL_load_OGL_texture(texFilename.c_str(),
+                                                                   0, false, SOIL_FLAG_INVERT_Y);
+                materials[currentMat.id] = currentMat;
+
+                // Reset attributes to defaults
+                currentMat = ModelMaterial();
+
+                if (tokens.size() > 1) currentMat.id = tokens[1];
+            } else if (key == "ka" || key == "kd" || key == "ks" || key == "ke") {
+                float r = stof(tokens[1]);
+                float g = stof(tokens[2]);
+                float b = stof(tokens[3]);
+
+                if (key == "ka") currentMat.ambient = Color(r, g, b);
+                else if (key == "kd") currentMat.diffuse = Color(r, g, b);
+                else if (key == "ks") currentMat.specular = Color(r, g, b);
+                else if (key == "ke") currentMat.emissive = Color(r, g, b);
+
+            } else if (key == "ns") currentMat.shininess = stof(tokens[1]);
+            else if (key == "map_kd") texFilename = parentDir + tokens[1];
+        }
+    }
+    inputStream.close();
+    // Add last material
+    materials[currentMat.id] = currentMat;
+    return materials;
+}
+
+vector<string> ObjLoader::splitString(const string &str, char delimiter) {
     using namespace std;
     vector<string> tokens;
     size_t current, previous = 0;
@@ -110,19 +173,19 @@ std::vector<std::string> ObjLoader::splitString(const std::string &str, char del
     return tokens;
 }
 
-void ObjLoader::Face::addVertIdx(const std::string &indexStr) {
+void ObjLoader::Face::addVertIdx(const string &indexStr) {
     vertIndices.push_back(getIndex(indexStr));
 }
 
-void ObjLoader::Face::addTexIdx(const std::string &indexStr) {
+void ObjLoader::Face::addTexIdx(const string &indexStr) {
     texIndices.push_back(getIndex(indexStr));
 }
 
-void ObjLoader::Face::addNormIdx(const std::string &indexStr) {
+void ObjLoader::Face::addNormIdx(const string &indexStr) {
     normIndices.push_back(getIndex(indexStr));
 }
 
-int ObjLoader::Face::getIndex(const std::string &index) {
+int ObjLoader::Face::getIndex(const string &index) {
     if (index.empty() || index.length() == 0) return 0;
     return std::stoi(index) - 1;
 }
@@ -141,19 +204,19 @@ std::ostream &operator<<(std::ostream &os, const ObjLoader::Face &face) {
     return os;
 }
 
-void ObjLoader::ltrim(std::string &s) {
+void ObjLoader::ltrim(string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
         return !std::isspace(ch);
     }));
 }
 
-void ObjLoader::rtrim(std::string &s) {
+void ObjLoader::rtrim(string &s) {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
         return !std::isspace(ch);
     }).base(), s.end());
 }
 
-void ObjLoader::trim(std::string &s) {
+void ObjLoader::trim(string &s) {
     ltrim(s);
     rtrim(s);
 }
@@ -168,64 +231,4 @@ bool ObjLoader::Face::hasNormals() const {
 
 int ObjLoader::Face::size() const {
     return vertIndices.size();
-}
-
-std::unordered_map<std::string, ModelMaterial> ObjLoader::MtlLoader::load(const std::string &filename) {
-    using namespace std;
-    string line;
-    vector<string> tokens;
-
-    ModelMaterial currentMat;
-    unordered_map<string, ModelMaterial> materials;
-
-    ifstream inputStream(filename);
-    if (!inputStream.is_open()) {
-        cerr << "Cannot open MTL file " + filename << '\n';
-        exit(69);
-    }
-
-    while (getline(inputStream, line)) {
-        if (!line.empty() && line.at(0) == '\t') {
-            line = line.substr(1);
-            trim(line);
-        }
-
-        tokens = splitString(line, ' ');
-
-        if (tokens[0].empty() || tokens[0].at(0) == '#') continue;
-        else {
-            string key = tokens[0];
-            // to lower case
-            transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
-            if (key == "newmtl") {
-                // Add previously parsed material to the map
-                materials[currentMat.id] = currentMat;
-
-                // Reset attributes to defaults
-                currentMat = ModelMaterial();
-
-                if (tokens.size() > 1)
-                    currentMat.id = tokens[1];
-
-            } else if (key == "ka" || key == "kd" || key == "ks" || key == "ke") {
-                float r = stof(tokens[1]);
-                float g = stof(tokens[2]);
-                float b = stof(tokens[3]);
-                //float a = 1;
-                //if (tokens.size() > 4) a = stof(tokens[4]);
-
-                if (key == "ka") currentMat.ambient = Color(r, g, b);
-                else if (key == "kd") currentMat.diffuse = Color(r, g, b);
-                else if (key == "ks") currentMat.specular = Color(r, g, b);
-                else if (key == "ke") currentMat.emissive = Color(r, g, b);
-
-            } else if (key == "ns") currentMat.shininess = stof(tokens[1]);
-        }
-    }
-    inputStream.close();
-
-    // Add last material
-    materials[currentMat.id] = currentMat;
-
-    return materials;
 }

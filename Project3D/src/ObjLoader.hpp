@@ -7,39 +7,40 @@
 #include <GL/gl.h>
 #include "ModelMaterial.hpp"
 
+using std::string;
+using std::unordered_map;
+using std::vector;
+
 class ObjLoader {
 public:
     static float lowestVertexY;
 
-    static GLuint loadModel(const std::string &parentDir, const std::string &filename);
+    static GLuint loadModel(const string &parentDir, const string &filename);
 
 private:
-    static std::vector<std::string> splitString(const std::string &str, char delimiter);
-    static void ltrim(std::string &s);
-    static void rtrim(std::string &s);
-    static void trim(std::string &s);
+    static unordered_map<string, ModelMaterial> loadMTL(const string &parentDir, const string &filename);
+
+    static vector<string> splitString(const string &str, char delimiter);
+    static void ltrim(string &s);
+    static void rtrim(string &s);
+    static void trim(string &s);
 
 public:
     struct Face {
-        std::vector<int> vertIndices;
-        std::vector<int> texIndices;
-        std::vector<int> normIndices;
+        vector<int> vertIndices;
+        vector<int> texIndices;
+        vector<int> normIndices;
 
-        void addVertIdx(const std::string &indexStr);
-        void addTexIdx(const std::string &indexStr);
-        void addNormIdx(const std::string &indexStr);
+        void addVertIdx(const string &indexStr);
+        void addTexIdx(const string &indexStr);
+        void addNormIdx(const string &indexStr);
         bool hasTexCoords() const;
         bool hasNormals() const;
         int size() const;
 
     private:
-        static int getIndex(const std::string &index);
+        static int getIndex(const string &index);
         friend std::ostream &operator<<(std::ostream &os, const Face &face);
-    };
-
-private:
-    struct MtlLoader {
-        static std::unordered_map<std::string, ModelMaterial> load(const std::string &filename);
     };
 };
 

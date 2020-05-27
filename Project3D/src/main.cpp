@@ -53,27 +53,17 @@ public:
         glBindTexture(GL_TEXTURE_2D, groundTexture);
         glBegin(GL_QUADS);
         {
-            glTexCoord2f(0, 0);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(-100.0f, 0.0f, -100.0f);
-            glTexCoord2f(0, 20);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(-100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 20);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 0);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, -100.0f);
         }
         glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
 
         glPushMatrix();
         {
             glRotatef(angle, 0, 1, 0);
             glTranslatef(0, -ObjLoader::lowestVertexY, 0);
-
             glEnable(GL_BLEND);
             glCallList(displayList);
             glDisable(GL_BLEND);
@@ -102,8 +92,7 @@ public:
     }
 
     void setModelFullPath(const string &modelFullPath) {
-        size_t found;
-        found = modelFullPath.find_last_of("/\\");
+        size_t found = modelFullPath.find_last_of("/\\");
         parentDirectory = modelFullPath.substr(0, found + 1);
         filename = modelFullPath.substr(found + 1);
     }
@@ -203,6 +192,12 @@ int main(int argc, char *argv[]) {
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " obj_file\n";
         exit(69);
+    } else {
+        size_t found = string(argv[1]).find_last_of('.');
+        if (string(argv[1]).substr(found + 1) != "obj") {
+            cerr << "File given as argument doesn't have .obj extension\n";
+            exit(69);
+        }
     }
 
     Configuration config;

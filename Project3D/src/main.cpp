@@ -21,39 +21,16 @@ class Application : public AppListener {
     string parentDirectory, filename;
 
 public:
-    static void initEnables() {
-        glEnable(GL_DEPTH_TEST);
-//        glEnable(GL_CULL_FACE);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
-        glEnable(GL_FOG);
-    }
-
     void create() override {
-        initEnables();
+        glEnable(GL_DEPTH_TEST);
+        configureLighting();
+        configureFog();
+        configureGLUTMenus();
 
-        float lightPosition[] = {0.f, 1.f, 0.f, 0.f};
-        float ambientLightColor[] = {.0f, .3f, .4f, 1.f};
-        float diffuseLightColor[] = {1.f, 1.f, 1.f, 1.f};
-        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-        // glLightfv(GL_LIGHT0, GL_AMBIENT_AND_DIFFUSE, ambientLightColor);
-        glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLightColor);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLightColor);
-        // glLightfv(GL_LIGHT0, GL_SPECULAR, diffuseLightColor);
-
-        GLfloat fogColor[4] = {201 / 255.f, 201 / 255.f, 201 / 255.f, 1};
-        glFogi(GL_FOG_MODE, GL_EXP2);
-        glFogfv(GL_FOG_COLOR, fogColor);
-        glFogf(GL_FOG_DENSITY, 0.075f);
-        glHint(GL_FOG_HINT, GL_DONT_CARE);
-        glFogf(GL_FOG_START, 20.f);
-        glFogf(GL_FOG_END, 30.f);
-
+        glEnable(GL_TEXTURE_2D);
         displayList = ObjLoader::loadModel(parentDirectory, filename);
         groundTexture = SOIL_load_OGL_texture("../assets/tileable-S7002876-verydark.png",
                                               0, false, 0);
-
         // Configure texture rendering after generating and binding (Loading) textures
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -93,9 +70,14 @@ public:
         glBindTexture(GL_TEXTURE_2D, 0);
 
         glPushMatrix();
-        glRotatef(angle, 0, 1, 0);
-        glTranslatef(0, -ObjLoader::lowestVertexY, 0);
-        glCallList(displayList);
+        {
+            glRotatef(angle, 0, 1, 0);
+            glTranslatef(0, -ObjLoader::lowestVertexY, 0);
+
+            glEnable(GL_BLEND);
+            glCallList(displayList);
+            glDisable(GL_BLEND);
+        }
         glPopMatrix();
     }
 
@@ -138,17 +120,82 @@ private:
             //cameraDirection.x = sin(angle);
             //cameraDirection.z = -cos(angle);
         }
-        if (specialKeyStates[GLUT_LEFT_BUTTON]) cameraPosition.y += velocity * GlutApp3D::getDeltaTime();
-
-        if (specialKeyStates[GLUT_RIGHT_BUTTON]) cameraPosition.y -= velocity * GlutApp3D::getDeltaTime();
-
+        if (specialKeyStates[GLUT_LEFT_BUTTON]) {
+            cameraPosition.y += velocity * GlutApp3D::getDeltaTime();
+        }
+        if (specialKeyStates[GLUT_RIGHT_BUTTON]) {
+            cameraPosition.y -= velocity * GlutApp3D::getDeltaTime();
+        }
         // Zoom in
-        if (keyStates['w']) cameraPosition.z -= velocity * GlutApp3D::getDeltaTime();
-
+        if (keyStates['w'] && cameraPosition.z > 0)
+            cameraPosition.z -= velocity * GlutApp3D::getDeltaTime();
         // Zoom out
-        if (keyStates['s']) cameraPosition.z += velocity * GlutApp3D::getDeltaTime();
+        if (keyStates['s'] && cameraPosition.z < 10)
+            cameraPosition.z += velocity * GlutApp3D::getDeltaTime();
 
         gluLookAt(cameraPosition, cameraPosition + cameraDirection, {0, 1, 0});
+    }
+
+    enum RenderMode {
+        SOLID, TRANSPARENT_COLOR, TRANSPARENT_WHITE
+    };
+
+    static void menu(RenderMode renderMode) {
+        switch (renderMode) {
+            case RenderMode::SOLID:
+                glBlendFunc(GL_ONE, GL_ZERO);
+                glDisable(GL_CULL_FACE);
+                break;
+            case RenderMode::TRANSPARENT_COLOR:
+                glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR);
+                glEnable(GL_CULL_FACE);
+                break;
+            case RenderMode::TRANSPARENT_WHITE:
+                glBlendFunc(GL_ONE, GL_ONE);
+                glEnable(GL_CULL_FACE);
+                break;
+        }
+    }
+
+    static void configureLighting() {
+        glEnable(GL_LIGHTING);
+
+        float intensity[] = {.1f, .1f, .1f, 1.0f};
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, intensity);
+
+        glEnable(GL_LIGHT0);
+        float light0Position[] = {1, 1, 0, 0};
+        float ambientLightColor[] = {.1f, .1f, .1f, 1.f};
+        float diffuseLightColor[] = {1.f, 1.f, 1.f, 1.f};
+        glLightfv(GL_LIGHT0, GL_POSITION, light0Position);
+        glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLightColor);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLightColor);
+
+        glEnable(GL_LIGHT1);
+        float light1Position[] = {-1, 1, 0, 0};
+        glLightfv(GL_LIGHT1, GL_POSITION, light1Position);
+        glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLightColor);
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseLightColor);
+    }
+
+    static void configureFog() {
+        glEnable(GL_FOG);
+
+        GLfloat fogColor[4] = {201 / 255.f, 201 / 255.f, 201 / 255.f, 1};
+        glFogi(GL_FOG_MODE, GL_EXP2);
+        glFogfv(GL_FOG_COLOR, fogColor);
+        glFogf(GL_FOG_DENSITY, 0.075f);
+        glHint(GL_FOG_HINT, GL_DONT_CARE);
+        glFogf(GL_FOG_START, 20.f);
+        glFogf(GL_FOG_END, 30.f);
+    }
+
+    static void configureGLUTMenus() {
+        glutCreateMenu(reinterpret_cast<void (*)(int)>(menu));
+        glutAddMenuEntry("Solid", RenderMode::SOLID);
+        glutAddMenuEntry("Transparent Color", RenderMode::TRANSPARENT_COLOR);
+        glutAddMenuEntry("Transparent White", RenderMode::TRANSPARENT_WHITE);
+        glutAttachMenu(GLUT_MIDDLE_BUTTON);
     }
 };
 

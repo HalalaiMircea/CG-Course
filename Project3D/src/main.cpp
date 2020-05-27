@@ -29,8 +29,7 @@ public:
 
         glEnable(GL_TEXTURE_2D);
         displayList = ObjLoader::loadModel(parentDirectory, filename);
-        groundTexture = SOIL_load_OGL_texture("../assets/tileable-S7002876-verydark.png",
-                                              0, false, 0);
+        groundTexture = SOIL_load_OGL_texture("../assets/tileable-S7002876-verydark.png", 0, false, 0);
         // Configure texture rendering after generating and binding (Loading) textures
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -53,10 +52,18 @@ public:
         glBindTexture(GL_TEXTURE_2D, groundTexture);
         glBegin(GL_QUADS);
         {
-            glTexCoord2f(0, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, -100.0f);
-            glTexCoord2f(0, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0, 0);
+            glNormal3f(.0f, 1.f, .0f);
+            glVertex3f(-100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0, 20);
+            glNormal3f(.0f, 1.f, .0f);
+            glVertex3f(-100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 20);
+            glNormal3f(.0f, 1.f, .0f);
+            glVertex3f(100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 0);
+            glNormal3f(.0f, 1.f, .0f);
+            glVertex3f(100.0f, 0.0f, -100.0f);
         }
         glEnd();
 
@@ -64,9 +71,7 @@ public:
         {
             glRotatef(angle, 0, 1, 0);
             glTranslatef(0, -ObjLoader::lowestVertexY, 0);
-            glEnable(GL_BLEND);
             glCallList(displayList);
-            glDisable(GL_BLEND);
         }
         glPopMatrix();
     }
@@ -126,13 +131,13 @@ private:
     }
 
     enum RenderMode {
-        SOLID, TRANSPARENT_COLOR, TRANSPARENT_WHITE
+        NORMAL, TRANSPARENT_COLOR, TRANSPARENT_WHITE
     };
 
     static void menu(RenderMode renderMode) {
         switch (renderMode) {
-            case RenderMode::SOLID:
-                glBlendFunc(GL_ONE, GL_ZERO);
+            case RenderMode::NORMAL:
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glDisable(GL_CULL_FACE);
                 break;
             case RenderMode::TRANSPARENT_COLOR:
@@ -181,10 +186,11 @@ private:
 
     static void configureGLUTMenus() {
         glutCreateMenu(reinterpret_cast<void (*)(int)>(menu));
-        glutAddMenuEntry("Solid", RenderMode::SOLID);
+        glutAddMenuEntry("Normal", RenderMode::NORMAL);
         glutAddMenuEntry("Transparent Color", RenderMode::TRANSPARENT_COLOR);
         glutAddMenuEntry("Transparent White", RenderMode::TRANSPARENT_WHITE);
         glutAttachMenu(GLUT_MIDDLE_BUTTON);
+        menu(RenderMode::NORMAL);
     }
 };
 
@@ -192,12 +198,9 @@ int main(int argc, char *argv[]) {
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " obj_file\n";
         exit(69);
-    } else {
-        size_t found = string(argv[1]).find_last_of('.');
-        if (string(argv[1]).substr(found + 1) != "obj") {
-            cerr << "File given as argument doesn't have .obj extension\n";
-            exit(69);
-        }
+    } else if (string(argv[1]).substr(string(argv[1]).find_last_of('.') + 1) != "obj") {
+        cerr << "File given as argument doesn't have .obj extension\n";
+        exit(70);
     }
 
     Configuration config;
@@ -205,6 +208,7 @@ int main(int argc, char *argv[]) {
     config.height = 900;
     config.title = "3D Model Viewer";
     config.samples = 8;
+    config.fullscreen = false;
 
     auto *pApplication = new Application();
     pApplication->setModelFullPath(argv[1]);

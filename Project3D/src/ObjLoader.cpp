@@ -69,6 +69,7 @@ GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
 
     GLuint listId = glGenLists(1);
     glNewList(listId, GL_COMPILE);
+    glEnable(GL_BLEND);
     for (auto &mapEntry : materialFaceMap) {
         ModelMaterial &material = materials[mapEntry.first];
 
@@ -77,11 +78,16 @@ GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
         material.specular.toArray(specularColor);
         material.emissive.toArray(emissiveColor);
 
+        // For transparency
+        ambientColor[3] = diffuseColor[3] = material.opacity;
+
         glMaterialfv(GL_FRONT, GL_AMBIENT, ambientColor);
         glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseColor);
         glMaterialfv(GL_FRONT, GL_SPECULAR, specularColor);
         glMaterialfv(GL_FRONT, GL_EMISSION, emissiveColor);
         glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
+
+        glColor4fv(diffuseColor);
 
         glBindTexture(GL_TEXTURE_2D, material.diffTexture);
 
@@ -95,6 +101,7 @@ GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
             glEnd();
         }
     }
+    glDisable(GL_BLEND);
     glEndList();
     return listId;
 }
@@ -149,7 +156,8 @@ unordered_map<string, ModelMaterial> ObjLoader::loadMTL(const string &parentDir,
                 else if (key == "ks") currentMat.specular = Color(r, g, b);
                 else if (key == "ke") currentMat.emissive = Color(r, g, b);
 
-            } else if (key == "ns") currentMat.shininess = stof(tokens[1]);
+            } else if (key == "tr" || key == "d") currentMat.opacity = stof(tokens[1]);
+            else if (key == "ns") currentMat.shininess = stof(tokens[1]);
             else if (key == "map_kd") texFilename = parentDir + tokens[1];
         }
     }

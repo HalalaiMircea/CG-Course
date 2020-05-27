@@ -16,6 +16,7 @@ struct Configuration {
     std::string title;
     /** Number of samples for anti-aliasing **/
     int samples = 0;
+    bool fullscreen = false;
     /** Width and height of application window **/
     int width = 640, height = 480;
     /** x & y of application window, -1 for center **/
@@ -58,6 +59,7 @@ private:
         glutInit(&argc, argv);
         glutSetOption(GLUT_MULTISAMPLE, config.samples);
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
+
         if (config.x < 0 || config.y < 0) {
             config.x = (glutGet(GLUT_SCREEN_WIDTH) - config.width) / 2;
             config.y = (glutGet(GLUT_SCREEN_HEIGHT) - config.height) / 2;
@@ -65,6 +67,7 @@ private:
         glutInitWindowPosition(config.x, config.y);
         glutInitWindowSize(config.width, config.height);
         glutCreateWindow(config.title.c_str());
+        if (config.fullscreen) glutFullScreen();
         glutIgnoreKeyRepeat(true);
 
         listener->create();

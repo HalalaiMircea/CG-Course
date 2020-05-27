@@ -31,7 +31,6 @@ void display() {
 
     glPushMatrix();
     {
-        glColor3f(0.4, 0.3, 0.1);
         glTranslatef(0, 2, 0);
         drawLeftTriangle();
         drawRightTriangle();

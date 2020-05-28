@@ -13,10 +13,11 @@ class Application : public AppListener {
     float angle = 0, velocity = 2.5f;
     Vector3 cameraDirection{0.0f, 0.0f, -1.0f};
     Vector3 cameraPosition{0.0f, 1.0f, 5.0f};
+    Vector2 oldMousePos{0, 0};
     map<unsigned char, bool> keyStates;
     map<int, bool> specialKeyStates;
     Color groundColor{.0f, .5f, .7f};
-    GLuint displayList = 0;
+    GLuint displayLists[2]{};
     GLuint groundTexture = 0;
     string parentDirectory, filename;
 
@@ -27,52 +28,43 @@ public:
         configureFog();
         configureGLUTMenus();
 
-        glEnable(GL_TEXTURE_2D);
-        displayList = ObjLoader::loadModel(parentDirectory, filename);
         groundTexture = SOIL_load_OGL_texture("../assets/tileable-S7002876-verydark.png", 0, false, 0);
-        // Configure texture rendering after generating and binding (Loading) textures
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        configureLoadedTexture();
+
+        displayLists[0] = glGenLists(1);
+        glNewList(displayLists[0], GL_COMPILE);
+        {
+            float groundMaterialColor[4];
+            groundColor.toArray(groundMaterialColor);
+            glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, groundMaterialColor);
+            glBindTexture(GL_TEXTURE_2D, groundTexture);
+            glBegin(GL_QUADS);
+
+            glTexCoord2f(0, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, -100.0f);
+
+            glEnd();
+        }
+        glEndList();
+        displayLists[1] = ObjLoader::loadModel(parentDirectory, filename);
     }
 
     void render(float delta) override {
         glClearColor(201 / 255.f, 201 / 255.f, 201 / 255.f, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Reset transformations
-        glLoadIdentity();
 
+        glLoadIdentity(); // Reset camera transformations
         moveCamera();
-
-        // Draw ground
-        float groundMaterialColor[4];
-        groundColor.toArray(groundMaterialColor);
-        glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, groundMaterialColor);
-        glBindTexture(GL_TEXTURE_2D, groundTexture);
-        glBegin(GL_QUADS);
-        {
-            glTexCoord2f(0, 0);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(-100.0f, 0.0f, -100.0f);
-            glTexCoord2f(0, 20);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(-100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 20);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 0);
-            glNormal3f(.0f, 1.f, .0f);
-            glVertex3f(100.0f, 0.0f, -100.0f);
-        }
-        glEnd();
+        glCallList(displayLists[0]);
 
         glPushMatrix();
-        {
-            glRotatef(angle, 0, 1, 0);
-            glTranslatef(0, -ObjLoader::lowestVertexY, 0);
-            glCallList(displayList);
-        }
+
+        glRotatef(angle, 0, 1, 0);
+        glTranslatef(0, -ObjLoader::lowestVertexY, 0);
+        glCallList(displayLists[1]);
+
         glPopMatrix();
     }
 
@@ -81,8 +73,7 @@ public:
             tolower(key) == 'q' || tolower(key) == 'e')
             keyStates[tolower(key)] = true;
 
-        if (key == 27)
-            GlutApp3D::exit();
+        if (key == 27) GlutApp3D::exit();
     }
 
     void keyboardUp(unsigned char key, int x, int y) override {
@@ -94,6 +85,37 @@ public:
     void mouseFunc(int button, int state, int x, int y) override {
         if (button == GLUT_LEFT_BUTTON || button == GLUT_RIGHT_BUTTON)
             specialKeyStates[button] = (state == GLUT_DOWN);
+
+        // Wheel reports as button 3(scroll up) and button 4(scroll down)
+        if (button == 3 || button == 4) {
+            if (state == GLUT_UP) return; // Disregard redundant GLUT_UP events
+
+            if (button == 3 && cameraPosition.z > 0)
+                cameraPosition.z -= 0.5f;
+            if (button == 4 && cameraPosition.z < 10)
+                cameraPosition.z += 0.5f;
+        }
+    }
+
+    void mouseMotion(int mouseX, int mouseY) override {
+        Vector2 mouseDistance = Vector2((float) mouseX, (float) mouseY) - oldMousePos;
+
+        if (specialKeyStates[GLUT_LEFT_BUTTON]) { angle += 0.5f * mouseDistance.x; }
+        if (specialKeyStates[GLUT_RIGHT_BUTTON]) {
+            // When mouse is moved up, the distance is negative
+            if (mouseDistance.y < 0) {
+                if (cameraPosition.y > 0.2f)
+                    cameraPosition.y -= 0.01f * abs(mouseDistance.y);
+            } else {
+                if (cameraPosition.y < 6.5f)
+                    cameraPosition.y += 0.01f * abs(mouseDistance.y);
+            }
+        }
+        oldMousePos.set((float) mouseX, (float) mouseY);
+    }
+
+    void mousePassiveMotion(int mouseX, int mouseY) override {
+        oldMousePos.set((float) mouseX, (float) mouseY);
     }
 
     void setModelFullPath(const string &modelFullPath) {
@@ -104,28 +126,12 @@ public:
 
 private:
     void moveCamera() {
-        if (keyStates['a']) {
-            angle -= 45.f * GlutApp3D::getDeltaTime();
-            //cameraDirection.x = sin(angle);
-            //cameraDirection.z = -cos(angle);
-        }
-        if (keyStates['d']) {
-            angle += 45.f * GlutApp3D::getDeltaTime();
-            //cameraDirection.x = sin(angle);
-            //cameraDirection.z = -cos(angle);
-        }
-        if (specialKeyStates[GLUT_LEFT_BUTTON]) {
-            cameraPosition.y += velocity * GlutApp3D::getDeltaTime();
-        }
-        if (specialKeyStates[GLUT_RIGHT_BUTTON]) {
-            cameraPosition.y -= velocity * GlutApp3D::getDeltaTime();
-        }
+        if (keyStates['a']) { angle -= 45.f * GlutApp3D::getDeltaTime(); }
+        if (keyStates['d']) { angle += 45.f * GlutApp3D::getDeltaTime(); }
         // Zoom in
-        if (keyStates['w'] && cameraPosition.z > 0)
-            cameraPosition.z -= velocity * GlutApp3D::getDeltaTime();
+        if (keyStates['w'] && cameraPosition.z > 0) { cameraPosition.z -= velocity * GlutApp3D::getDeltaTime(); }
         // Zoom out
-        if (keyStates['s'] && cameraPosition.z < 10)
-            cameraPosition.z += velocity * GlutApp3D::getDeltaTime();
+        if (keyStates['s'] && cameraPosition.z < 10) { cameraPosition.z += velocity * GlutApp3D::getDeltaTime(); }
 
         gluLookAt(cameraPosition, cameraPosition + cameraDirection, {0, 1, 0});
     }
@@ -175,7 +181,7 @@ private:
     static void configureFog() {
         glEnable(GL_FOG);
 
-        GLfloat fogColor[4] = {201 / 255.f, 201 / 255.f, 201 / 255.f, 1};
+        float fogColor[4] = {201 / 255.f, 201 / 255.f, 201 / 255.f, 1};
         glFogi(GL_FOG_MODE, GL_EXP2);
         glFogfv(GL_FOG_COLOR, fogColor);
         glFogf(GL_FOG_DENSITY, 0.075f);
@@ -191,6 +197,14 @@ private:
         glutAddMenuEntry("Transparent White", RenderMode::TRANSPARENT_WHITE);
         glutAttachMenu(GLUT_MIDDLE_BUTTON);
         menu(RenderMode::NORMAL);
+    }
+
+    static void configureLoadedTexture() {
+        glEnable(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 };
 
@@ -208,7 +222,7 @@ int main(int argc, char *argv[]) {
     config.height = 900;
     config.title = "3D Model Viewer";
     config.samples = 8;
-    config.fullscreen = false;
+    config.fullscreen = true;
 
     auto *pApplication = new Application();
     pApplication->setModelFullPath(argv[1]);

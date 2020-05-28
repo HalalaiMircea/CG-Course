@@ -88,7 +88,6 @@ GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
         glMaterialf(GL_FRONT, GL_SHININESS, material.shininess);
 
         glColor4fv(diffuseColor);
-
         glBindTexture(GL_TEXTURE_2D, material.diffTexture);
 
         for (auto &face : mapEntry.second) {
@@ -138,8 +137,7 @@ unordered_map<string, ModelMaterial> ObjLoader::loadMTL(const string &parentDir,
             if (key == "newmtl") {
                 // Add previously parsed material to the map
                 if (!texFilename.empty())
-                    currentMat.diffTexture = SOIL_load_OGL_texture(texFilename.c_str(),
-                                                                   0, false, SOIL_FLAG_INVERT_Y);
+                    currentMat.diffTexture = SOIL_load_OGL_texture(texFilename.c_str(), 0, false, SOIL_FLAG_INVERT_Y);
                 materials[currentMat.id] = currentMat;
 
                 // Reset attributes to defaults

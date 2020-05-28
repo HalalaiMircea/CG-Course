@@ -36,4 +36,8 @@ public:
     virtual void specialKeyboardDown(int key, int x, int y) {}
 
     virtual void specialKeyboardUp(int key, int x, int y) {}
+
+    virtual void mouseMotion(int mouseX, int mouseY) {}
+
+    virtual void mousePassiveMotion(int mouseX, int mouseY) {}
 };

@@ -77,6 +77,8 @@ private:
         glutKeyboardUpFunc(keyboardUpWrapper);
         glutSpecialFunc(specialKeyboardWrapper);
         glutSpecialUpFunc(specialKeyboardUpWrapper);
+        glutMotionFunc(mouseMotionWrapper);
+        glutPassiveMotionFunc(mousePassiveMotionWrapper);
         glutDisplayFunc(fakeDisplayFunc);
         glutIdleFunc(renderWrapper);
         glutReshapeFunc(reshapeWrapper);
@@ -133,5 +135,13 @@ private:
 
     static void specialKeyboardUpWrapper(int key, int x, int y) {
         listener->specialKeyboardUp(key, x, y);
+    }
+
+    static void mouseMotionWrapper(int mx, int my) {
+        listener->mouseMotion(mx, my);
+    }
+
+    static void mousePassiveMotionWrapper(int mx, int my){
+        listener->mousePassiveMotion(mx, my);
     }
 };

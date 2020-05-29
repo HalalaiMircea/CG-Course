@@ -9,7 +9,7 @@
 using namespace std;
 
 class Application : public AppListener {
-
+private:
     float angle = 0, velocity = 2.5f;
     Vector3 cameraDirection{0.0f, 0.0f, -1.0f};
     Vector3 cameraPosition{0.0f, 1.0f, 5.0f};
@@ -40,10 +40,11 @@ public:
             glBindTexture(GL_TEXTURE_2D, groundTexture);
             glBegin(GL_QUADS);
 
-            glTexCoord2f(0, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, -100.0f);
-            glTexCoord2f(0, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(-100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 20);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, 100.0f);
-            glTexCoord2f(20, 0);glNormal3f(.0f, 1.f, .0f);glVertex3f(100.0f, 0.0f, -100.0f);
+            glNormal3f(.0f, 1.f, .0f);
+            glTexCoord2f(0, 0);glVertex3f(-100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0, 20);glVertex3f(-100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 20);glVertex3f(100.0f, 0.0f, 100.0f);
+            glTexCoord2f(20, 0);glVertex3f(100.0f, 0.0f, -100.0f);
 
             glEnd();
         }
@@ -110,6 +111,7 @@ public:
                 if (cameraPosition.y < 6.5f)
                     cameraPosition.y += 0.01f * abs(mouseDistance.y);
             }
+            cameraPosition.x -= 0.01f * mouseDistance.x;
         }
         oldMousePos.set((float) mouseX, (float) mouseY);
     }
@@ -171,7 +173,7 @@ private:
         glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLightColor);
         glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLightColor);
 
-        glEnable(GL_LIGHT1);
+//        glEnable(GL_LIGHT1);
         float light1Position[] = {-1, 1, 0, 0};
         glLightfv(GL_LIGHT1, GL_POSITION, light1Position);
         glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLightColor);
@@ -222,7 +224,7 @@ int main(int argc, char *argv[]) {
     config.height = 900;
     config.title = "3D Model Viewer";
     config.samples = 8;
-    config.fullscreen = true;
+    config.fullscreen = false;
 
     auto *pApplication = new Application();
     pApplication->setModelFullPath(argv[1]);

@@ -19,7 +19,6 @@ public:
 
 private:
     static unordered_map<string, ModelMaterial> loadMTL(const string &parentDir, const string &filename);
-
     static vector<string> splitString(const string &str, char delimiter);
     static void ltrim(string &s);
     static void rtrim(string &s);
@@ -42,4 +41,7 @@ public:
         static int getIndex(const string &index);
         friend std::ostream &operator<<(std::ostream &os, const Face &face);
     };
+
+private:
+    static void printLoadedModelSize(const unordered_map<string, vector<Face>>& data);
 };

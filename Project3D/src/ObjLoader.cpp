@@ -102,6 +102,9 @@ GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
     }
     glDisable(GL_BLEND);
     glEndList();
+
+    printLoadedModelSize(materialFaceMap);
+
     return listId;
 }
 
@@ -225,6 +228,19 @@ void ObjLoader::rtrim(string &s) {
 void ObjLoader::trim(string &s) {
     ltrim(s);
     rtrim(s);
+}
+
+void ObjLoader::printLoadedModelSize(const unordered_map<string, vector<Face>> &data) {
+    size_t dataSize = 0;
+    for (auto &mapEntry : data) {
+        for (auto &face : mapEntry.second) {
+            dataSize += face.vertIndices.size() * sizeof(int);
+            dataSize += face.texIndices.size() * sizeof(int);
+            dataSize += face.normIndices.size() * sizeof(int);
+        }
+    }
+
+    std::cout << "Loaded model size=" << dataSize << " bytes\n";
 }
 
 bool ObjLoader::Face::hasTexCoords() const {

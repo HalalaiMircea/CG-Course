@@ -25,7 +25,8 @@ private:
     static void trim(string &s);
 
 public:
-    struct Face {
+    class Face {
+    public:
         vector<int> vertIndices;
         vector<int> texIndices;
         vector<int> normIndices;

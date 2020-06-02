@@ -240,7 +240,7 @@ void ObjLoader::printLoadedModelSize(const unordered_map<string, vector<Face>> &
         }
     }
 
-    std::cout << "Loaded model size=" << dataSize << " bytes\n";
+    std::cout << "Loaded model size=" << dataSize / 1000.f << " kB\n";
 }
 
 bool ObjLoader::Face::hasTexCoords() const {

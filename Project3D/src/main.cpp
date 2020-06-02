@@ -33,7 +33,6 @@ public:
 
         displayLists[0] = glGenLists(1);
         glNewList(displayLists[0], GL_COMPILE);
-        {
             float groundMaterialColor[4];
             groundColor.toArray(groundMaterialColor);
             glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, groundMaterialColor);
@@ -47,7 +46,6 @@ public:
             glTexCoord2f(20, 0);glVertex3f(100.0f, 0.0f, -100.0f);
 
             glEnd();
-        }
         glEndList();
         displayLists[1] = ObjLoader::loadModel(parentDirectory, filename);
     }
@@ -58,28 +56,25 @@ public:
 
         glLoadIdentity(); // Reset camera transformations
         moveCamera();
+
         glCallList(displayLists[0]);
 
         glPushMatrix();
-
-        glRotatef(angle, 0, 1, 0);
-        glTranslatef(0, -ObjLoader::lowestVertexY, 0);
-        glCallList(displayLists[1]);
-
+            glRotatef(angle, 0, 1, 0);
+            glTranslatef(0, -ObjLoader::lowestVertexY, 0);
+            glCallList(displayLists[1]);
         glPopMatrix();
     }
 
     void keyboardDown(unsigned char key, int x, int y) override {
-        if (tolower(key) == 'w' || tolower(key) == 'a' || tolower(key) == 's' || tolower(key) == 'd' ||
-            tolower(key) == 'q' || tolower(key) == 'e')
+        if (tolower(key) == 'w' || tolower(key) == 'a' || tolower(key) == 's' || tolower(key) == 'd')
             keyStates[tolower(key)] = true;
 
         if (key == 27) GlutApp3D::exit();
     }
 
     void keyboardUp(unsigned char key, int x, int y) override {
-        if (tolower(key) == 'w' || tolower(key) == 'a' || tolower(key) == 's' || tolower(key) == 'd' ||
-            tolower(key) == 'q' || tolower(key) == 'e')
+        if (tolower(key) == 'w' || tolower(key) == 'a' || tolower(key) == 's' || tolower(key) == 'd')
             keyStates[tolower(key)] = false;
     }
 
@@ -173,7 +168,7 @@ private:
         glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLightColor);
         glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLightColor);
 
-//        glEnable(GL_LIGHT1);
+        glEnable(GL_LIGHT1);
         float light1Position[] = {-1, 1, 0, 0};
         glLightfv(GL_LIGHT1, GL_POSITION, light1Position);
         glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLightColor);

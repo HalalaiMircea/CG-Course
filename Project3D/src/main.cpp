@@ -28,7 +28,7 @@ public:
         configureFog();
         configureGLUTMenus();
 
-        groundTexture = SOIL_load_OGL_texture("../assets/tileable-S7002876-verydark.png", 0, false, 0);
+        groundTexture = SOIL_load_OGL_texture("../assets/tileable-S7002876-verydark.png", 0, false, SOIL_FLAG_INVERT_Y);
         configureLoadedTexture();
 
         displayLists[0] = glGenLists(1);

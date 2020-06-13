@@ -14,8 +14,8 @@ struct ModelMaterial {
     Color specular = Color::WHITE;
     Color emissive = Color::BLACK;
 
-    float shininess = 0.f;
-    float opacity = 1.f;
+    float shininess = 0.0f;
+    float opacity = 1.0f;
     unsigned int diffTexture = 0;
 
     friend std::ostream &operator<<(std::ostream &os, const ModelMaterial &material) {

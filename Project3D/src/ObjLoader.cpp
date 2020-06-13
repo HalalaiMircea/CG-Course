@@ -59,8 +59,10 @@ GLuint ObjLoader::loadModel(const string &parentDir, const string &filename) {
         } else if (tokens[0] == "usemtl") {
             if (tokens.size() == 1)
                 currentMaterial = "default";
-            else
+            else {
+//                replace(tokens[1].begin(), tokens[1].end(), '.', '_');
                 currentMaterial = tokens[1];
+            }
         }
     }
     inputStream.close();
@@ -117,9 +119,9 @@ unordered_map<string, ModelMaterial> ObjLoader::loadMTL(const string &parentDir,
     string texFilename;
     unordered_map<string, ModelMaterial> materials;
 
-    ifstream inputStream(filename);
+    ifstream inputStream(parentDir + filename);
     if (!inputStream.is_open()) {
-        cerr << "Cannot open MTL file " + filename << '\n';
+        cerr << "Cannot open MTL file " + parentDir + filename << '\n';
         exit(69);
     }
 
@@ -146,7 +148,10 @@ unordered_map<string, ModelMaterial> ObjLoader::loadMTL(const string &parentDir,
                 // Reset attributes to defaults
                 currentMat = ModelMaterial();
 
-                if (tokens.size() > 1) currentMat.id = tokens[1];
+                if (tokens.size() > 1) {
+//                    replace(tokens[1].begin(), tokens[1].end(), '.', '_');
+                    currentMat.id = tokens[1];
+                }
             } else if (key == "ka" || key == "kd" || key == "ks" || key == "ke") {
                 float r = stof(tokens[1]);
                 float g = stof(tokens[2]);
